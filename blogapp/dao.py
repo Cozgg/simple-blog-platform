@@ -14,7 +14,7 @@ def get_posts(id = None):
         return query.get(id)
     return query.all()
 
-def delete_post(post_id, current_user, is_confirmed):
+def delete_post(post_id, current_user, is_confirmed=False):
     p = Post.query.get(post_id)
     if not p:
         raise ValueError('Bài viết ko tồn tại')
