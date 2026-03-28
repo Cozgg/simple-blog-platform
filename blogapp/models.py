@@ -49,7 +49,7 @@ class Comment(BaseModel):
     post_id = Column(Integer, ForeignKey(Post.id), nullable=False)
 
     parent_id = Column(Integer, ForeignKey('comment.id'))
-    replies = relationship('Comment', backref=db.backref('parent', remote_side=[BaseModel.id]), lazy=True)
+    replies = relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'), lazy=True)
 
 
 if __name__ == '__main__':
