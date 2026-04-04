@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from blogapp import db
 from blogapp.models import Post, User, UserRole
+from datetime import date
 
 
 def get_users(id = None):
@@ -68,6 +69,7 @@ def auth_user(username, password):
 
 def get_user_by_id(id):
     return User.query.get(id)
+
 def add_post(title, content, user_id, image=None):
     try:
         today = date.today()
