@@ -1,31 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Đăng nhập Blog</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <h1 class="text-center text-primary">ĐĂNG NHẬP</h1>
 
-            {% if err_msg %}
-            <div class="alert alert-danger">{{ err_msg }}</div>
-            {% endif %}
+{% extends 'layout/base.html' %}
 
-            <form method="post">
-                <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập</label>
-                    <input type="text" class="form-control" name="username" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu</label>
-                    <input type="password" class="form-control" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
-            </form>
-        </div>
+{% block title %}Đăng nhập{% endblock %}
+
+{% block content %}
+<h1 class="text-success text-center mt-2">ĐĂNG NHẬP NGƯỜI DÙNG</h1>
+
+<form method="post" action="">
+    <div class="form-floating mb-3 mt-3">
+        <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập" name="username" required/>
+        <label for="username">Tên đăng nhập</label>
     </div>
-</body>
-</html>
+
+    <div class="form-floating mt-3 mb-3">
+        <input type="password" class="form-control" id="pwd" placeholder="Mật khẩu" name="password" required/>
+        <label for="pwd">Mật khẩu</label>
+    </div>
+
+    <div class="form-floating mt-3 mb-3">
+        <button type="submit" class="btn btn-danger">Đăng nhập</button>
+    </div>
+</form>
+{% endblock %}
+
