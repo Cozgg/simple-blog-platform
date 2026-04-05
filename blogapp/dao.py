@@ -85,6 +85,7 @@ def add_post(title, content, user_id, image=None):
         # Khong duoc dang 2 bai trung tieu de trong 1 ngay
         duplicate_title = Post.query.filter(
             Post.title == title.strip(),
+            Post.user_id == user_id,
             db.func.date(Post.created_date) == today
         ).first()
 

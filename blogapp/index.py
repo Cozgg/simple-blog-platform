@@ -62,7 +62,6 @@ def create_post_api():
     try:
         title = request.form.get('title', '').strip()
         content = request.form.get('content', '').strip()
-        category_id = request.form.get('category_id')
         image = request.files.get('image')
 
         if not title or len(title) < 10 or len(title) > 200:

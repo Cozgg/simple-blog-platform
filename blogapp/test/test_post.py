@@ -62,4 +62,37 @@ def test_post_limit(test_session, setup_user):
     assert "giới hạn 10 bài" in msg_11
 
 
+@patch('blogapp.dao.cloudinary.uploader.upload')
+def test_add_post_with_image(mock_upload, test_session, setup_user):
+    mock_upload.return_value = {'secure_url': 'https://res.cloudinary.com/mock-image-url.jpg'}
+
+    user_id = setup_user.id
+    title = "Tiêu đề có hình ảnh đính kèm"
+    content = "Nội dung bài viết này có kèm theo hình ảnh rất đẹp."
+    fake_image = "dummy_image_data"
+
+    success, msg = dao.add_post(title, content, user_id, image=fake_image)
+
+    assert success is True
+    assert msg == "Đăng bài viết thành công"
+
+    mock_upload.assert_called_once_with(fake_image)
+
+    saved_post = Post.query.filter_by(title=title).first()
+    assert saved_post is not None
+    assert saved_post.image == 'https://res.cloudinary.com/mock-image-url.jpg'
+
+
+@patch('blogapp.dao.db.session.commit')
+def test_add_post_exception(mock_commit, test_session, setup_user):
+    mock_commit.side_effect = Exception("Lỗi Database giả lập")
+
+    user_id = setup_user.id
+    title = "Tiêu đề gây lỗi hệ thống"
+    content = "Nội dung không quan trọng vì lỗi sẽ văng ra khi commit."
+
+    success, msg = dao.add_post(title, content, user_id)
+
+    assert success is False
+    assert "Lỗi Database giả lập" in msg
 
