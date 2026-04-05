@@ -25,13 +25,13 @@ def delete_post(post_id, current_user, is_confirmed=False):
     if not p:
         raise ValueError('Bài viết ko tồn tại')
 
-    if current_user.user_role != UserRole.ADMIN or p.user_id != current_user.id:
+    if p.user_id != current_user.id and current_user.user_role != UserRole.ADMIN:
         raise PermissionError('Chỉ admin hoặc tác giả mới được xóa')
 
     if p.is_pinned:
-        raise ValueError('Bài viết đang ghim ko được xóa')
+        raise ValueError('Bài viết đang ghim không được xóa')
 
-    if p.comments > 10 and not is_confirmed:
+    if len(p.comments) > 10 and not is_confirmed:
         raise ValueError('Bài viết có hơn 10 bình luận, cần xác nhận xóa')
 
     db.session.delete(p)
