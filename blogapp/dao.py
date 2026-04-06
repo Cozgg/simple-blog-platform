@@ -1,12 +1,11 @@
 import hashlib
 import re
-
 import cloudinary
 from sqlalchemy.exc import IntegrityError
-
 from blogapp import db
-from blogapp.models import Post, User, UserRole
-
+from blogapp.models import Post, User, UserRole, Comment
+from datetime import  datetime
+from sqlalchemy import desc
 
 def get_users(id = None):
     query = User.query
@@ -68,3 +67,52 @@ def auth_user(username, password):
 
 def get_user_by_id(id):
     return User.query.get(id)
+
+def check_post_locked(post_id):
+    post = db.session.get(Post, post_id)
+    if not post:
+        return False, 'Bài viết không tồn tại'
+    if post.is_locked:
+        return False, 'Bài viết này đã bị khóa bình luận'
+    return True, None
+
+def check_limit_comment(user_id, post_id):
+    count_comment = Comment.query.filter_by(user_id=user_id, post_id=post_id).count()
+    if count_comment >= 5:
+        return False, "Bạn đã đạt đến giới hạn bình luận cho bài viết này"
+    return True, None
+
+def check_anti_spam(user_id):
+    last_comment = Comment.query.filter_by(user_id=user_id).order_by(desc(Comment.created_date)).first()
+    if last_comment:
+        gap = datetime.now() - last_comment.created_date
+        if gap.total_seconds() < 10:
+            wait = 10 - int(gap.total_seconds())
+            return False, f"Vui lòng đợi sau {wait} giây để tiếp tục bình luận"
+    return True, None
+
+def is_allow_to_comment(user_id, post_id):
+    is_comment_ok, msg_comment = check_limit_comment(user_id,post_id)
+    if not is_comment_ok:
+        return False, msg_comment
+
+    is_post_open, msg_post = check_post_locked(post_id)
+    if not is_post_open:
+        return False, msg_post
+
+    is_anti_spam_ok, msg_anti_spam = check_anti_spam(user_id)
+    if not is_anti_spam_ok:
+        return False, msg_anti_spam
+
+    return True, None
+
+def save_comment(content, post_id, user_id):
+    allow, message = is_allow_to_comment(user_id, post_id)
+    if not allow:
+        raise PermissionError(message)
+    try:
+        new_comment = Comment(content=content, post_id=post_id,user_id=user_id)
+        db.session.add(new_comment)
+        db.session.commit()
+    except Exception as ex:
+        db.session.rollback()
