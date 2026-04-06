@@ -1,4 +1,4 @@
-from .base import test_app, test_session
+from .base import test_app, test_session, test_client
 import pytest
 
 from .. import dao
@@ -40,71 +40,66 @@ def sample_data(test_session):
     c6 = Comment(content="Comment post open 1", user_id=2, post_id=1, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 22:59:59", "%Y-%m-%d %H:%M:%S"))
     c7 = Comment(content="Comment post open 1", user_id=2, post_id=1, parent_id=None,
-                created_date=datetime.strptime("2026-03-28 23:59:59", "%Y-%m-%d %H:%M:%S"))
+                 created_date=datetime.strptime("2026-03-28 23:59:59", "%Y-%m-%d %H:%M:%S"))
 
     test_session.add_all([p1, p2, c2, c3, c4, c5, c6, c7, u1, u2])
     test_session.commit()
     return [p1, p2, c1, c2, c3, c4, c5, c6, c7, u1, u2]
 
+def test_save_comment_success(sample_data, test_session):
+    user_id = sample_data[10].id
+    post_id = sample_data[0].id
+    content = "Đây là bình luận hợp lệ"
 
-def test_locked_comment_post(sample_data):
-    ok, msg = dao.check_post_locked(sample_data[0].id)
-    assert ok == True
-    assert msg is None
-    ok, msg = dao.check_post_locked(sample_data[1].id)
-    assert ok == False
-    assert "Bài viết này đã bị khóa bình luận" in msg
-    ok, msg = dao.check_post_locked(3)
-    assert ok == False
-    assert "Bài viết không tồn tại" in msg
+    dao.save_comment(content, post_id, user_id)
+    saved_comment = Comment.query.filter_by(content=content, user_id=user_id).first()
+    assert saved_comment is not None
+    assert saved_comment.post_id == post_id
 
 
-def test_limit_comment(sample_data):
-    ok, msg = dao.check_limit_comment(sample_data[9].id, sample_data[0].id)
-    assert ok == False
-    assert "Bạn đã đạt đến giới hạn bình luận cho bài viết này" in msg
-    ok, msg = dao.check_limit_comment(sample_data[10].id, sample_data[0].id)
-    assert ok == True
-    assert msg is None
+def test_save_comment_fail_permission(sample_data):
+    user_id = sample_data[9].id
+    post_id = sample_data[0].id
+    content = "Đây là bình luận bị chặn của user 1(đã tới giới hạn)"
 
-def test_anti_spam(sample_data, test_session):
-    c = Comment(content="Comment post open 1", user_id=2, post_id=1, parent_id=None,
-                 created_date=datetime.now())
-    test_session.add(c)
-    test_session.commit()
-    ok, msg = dao.check_anti_spam(sample_data[10].id)
-    assert ok == False
-    assert "Vui lòng đợi sau" in msg
-
-    c.created_date = datetime.now() - timedelta(seconds=20)
-    test_session.commit()
-    ok, msg = dao.check_anti_spam(sample_data[10].id)
-    assert ok == True
-    assert msg is None
+    with pytest.raises(PermissionError, match="Bạn đã đạt đến giới hạn bình luận cho bài viết này"):
+        assert dao.save_comment(content=content, user_id=user_id, post_id=post_id)
 
 
-def test_allow_to_comment(sample_data, test_session):
-    ok, msg = dao.is_allow_to_comment(sample_data[10].id, sample_data[0].id)
-    assert ok == True
-    assert msg is None
+def test_save_comment_fail_locked_or_null_post(sample_data):
+    user_id = sample_data[10].id
+    post_id = sample_data[1].id
+    content = "Bình luận vào post bị khóa(bị chặn)"
 
-    ok, msg = dao.is_allow_to_comment(sample_data[10].id, sample_data[1].id)
-    assert ok == False
-    assert "Bài viết này đã bị khóa bình luận" in msg
+    with pytest.raises(PermissionError, match="Bài viết này đã bị khóa bình luận"):
+        assert dao.save_comment(content=content, user_id=user_id, post_id=post_id)
 
-    ok, msg = dao.is_allow_to_comment(sample_data[9].id, sample_data[0].id)
-    assert ok == False
-    assert "Bạn đã đạt đến giới hạn bình luận cho bài viết này" in msg
+    post_id = 3
+    content = "Bình luận vào post không tồn tại"
 
-    new_comment = Comment(
-        content="Spam test",
-        user_id=sample_data[10].id,
-        post_id=sample_data[0].id,
-        created_date=datetime.now()
-    )
-    test_session.add(new_comment)
+    with pytest.raises(PermissionError, match="Bài viết không tồn tại"):
+        assert dao.save_comment(content=content, user_id=user_id, post_id=post_id)
+
+def test_save_comment_fail_anti_spam(sample_data, test_session):
+    user_id = sample_data[10].id
+    post_id = sample_data[0].id
+    content = "Binh luan bi chan do spam"
+    recent_comment = Comment(content=content, user_id=user_id, post_id=post_id,
+                             created_date=datetime.now())
+    test_session.add(recent_comment)
     test_session.commit()
 
-    ok, msg = dao.is_allow_to_comment(sample_data[10].id, sample_data[0].id)
-    assert ok == False
-    assert "Vui lòng đợi sau" in msg
+    with pytest.raises(PermissionError, match="Vui lòng đợi sau"):
+        assert dao.save_comment(content=content, user_id=user_id, post_id=post_id)
+
+def test_save_comment_pass_after_wait(sample_data, test_session):
+    user_id = sample_data[10].id
+    post_id = sample_data[0].id
+    content = "Binh luan pass sau khi doi 10s 10s"
+    old_time = datetime.now() - timedelta(seconds=15)
+    old_comment = Comment(content=content, user_id=user_id, post_id=post_id, created_date=old_time)
+    test_session.add(old_comment)
+    test_session.commit()
+    dao.save_comment(content=content, user_id=user_id, post_id=post_id)
+    saved_comment = Comment.query.filter_by(content=content).first()
+    assert saved_comment is not None
