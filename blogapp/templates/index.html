@@ -3,5 +3,91 @@
 {% block title %}Trang chủ{% endblock %}
 
 {% block content %}
-<h1> Trang chủ </h1>
+<div class="container mt-4">
+    <h2 class="mb-4 fw-bold text-center">Bài viết mới nhất</h2>
+
+    <div class="row">
+        {% for post in posts %}
+        <div class="col-lg-8 mx-auto mb-4">
+            <div class="card shadow-sm {% if post.is_pinned %}border-primary{% endif %}">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0 text-dark">
+                            {{ post.title }}
+                            {% if post.is_pinned %}
+                            <span class="badge bg-primary ms-1 small">Đã ghim</span>
+                            {% endif %}
+                            {% if post.is_locked %}
+                            <span class="badge bg-secondary ms-1 small">Đã khóa</span>
+                            {% endif %}
+                        </h5>
+                    </div>
+
+                    <p class="card-text text-secondary mt-3">
+                        {{ post.content | truncate(150, True, '...') }}
+                    </p>
+
+                    <hr class="text-muted">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small fw-medium">
+                            Tác giả ID: {{ post.user_id }} &bull;
+                            Bình luận: {{ post.comments|length }}
+                        </span>
+
+                        <div>
+                            <a href="{{url_for('post_detail_view', post_id=post.id)}}" class="btn btn-sm btn-outline-dark me-2">Đọc tiếp</a>
+
+                            {% if current_user.is_authenticated and current_user.id == post.user_id %}
+                            <form action="/delete-post/{{ post.id }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?');">
+                                    Xóa
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-secondary mt-5">
+            <p>Hiện chưa có bài viết nào.</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% set current_page = request.args.get('page', 1) | int %}
+
+    {% if pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-5 mb-4">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+                <a class="page-link text-dark" href="{% if current_page > 1 %}?page={{ current_page - 1 }}{% else %}#{% endif %}">
+                    &laquo; Trước
+                </a>
+            </li>
+
+            {% for p in range(1, pages + 1) %}
+            <li class="page-item {% if current_page == p %}active{% endif %}">
+                <a class="page-link {% if current_page == p %}bg-dark border-dark text-white{% else %}text-dark{% endif %}" href="?page={{ p }}">
+                    {{ p }}
+                </a>
+            </li>
+            {% endfor %}
+
+            <li class="page-item {% if current_page >= pages %}disabled{% endif %}">
+                <a class="page-link text-dark" href="{% if current_page < pages %}?page={{ current_page + 1 }}{% else %}#{% endif %}">
+                    Sau &raquo;
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+</div>
 {% endblock %}

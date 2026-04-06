@@ -4,7 +4,7 @@ import re
 import cloudinary
 from sqlalchemy.exc import IntegrityError
 
-from blogapp import db
+from blogapp import db, app
 from blogapp.models import Post, User, UserRole
 
 
@@ -14,11 +14,17 @@ def get_users(id = None):
         return query.get(id)
     return query.all()
 
-def get_posts(id = None):
+def get_posts(id = None, page=None):
     query = Post.query
     if id:
         return query.get(id)
+    if page:
+        start = (page - 1) * app.config['PAGE_SIZE']
+        query = query.slice(start, start + app.config['PAGE_SIZE'])
     return query.all()
+
+def count_posts():
+    return Post.query.count()
 
 def delete_post(post_id, current_user, is_confirmed=False):
     p = Post.query.get(post_id)
