@@ -1,3 +1,5 @@
+import math
+
 from flask_login import login_required, current_user, logout_user, login_user
 
 from blogapp import app, dao, login
@@ -8,8 +10,16 @@ from blogapp.models import UserRole
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    page = int(request.args.get('page', 1))
+    posts = dao.get_posts(page=page)
+    return render_template('index.html', posts=posts,
+                           pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
 
+
+@app.route('/post-detail/<int:post_id>', methods=['GET'])
+def post_detail_view(post_id):
+    p = dao.get_posts(id=post_id)
+    return render_template('post-detail.html', post=p)
 
 @app.route('/login')
 def login_view():
