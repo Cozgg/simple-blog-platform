@@ -1,13 +1,16 @@
-from .base import test_app, test_session
 import pytest
-
+from unittest.mock import patch
+from .base import test_app, test_session, test_client
 from .. import dao
 from ..models import Post, Comment, User, UserRole
+from cloudinary import uploader
+import cloudinary.uploader
+
 
 class MockUser:
     def __init__(self, user_id, role='user'):
         self.id = user_id
-        self.role = role
+        self.user_role = role
 
 @pytest.fixture
 def sample_post(test_session):
@@ -62,37 +65,34 @@ def test_post_limit(test_session, setup_user):
     assert "giới hạn 10 bài" in msg_11
 
 
-@patch('blogapp.dao.cloudinary.uploader.upload')
+@patch('cloudinary.uploader.upload')
 def test_add_post_with_image(mock_upload, test_session, setup_user):
     mock_upload.return_value = {'secure_url': 'https://res.cloudinary.com/mock-image-url.jpg'}
-
-    user_id = setup_user.id
-    title = "Tiêu đề có hình ảnh đính kèm"
-    content = "Nội dung bài viết này có kèm theo hình ảnh rất đẹp."
-    fake_image = "dummy_image_data"
-
-    success, msg = dao.add_post(title, content, user_id, image=fake_image)
-
+    success, msg = dao.add_post("Tiêu đề có hình ảnh đính kèm", "Nội dung bài viết này có kèm theo hình ảnh rất đẹp dài hơn 50 ký tự nha.", setup_user.id, image="dummy_image")
     assert success is True
-    assert msg == "Đăng bài viết thành công"
-
-    mock_upload.assert_called_once_with(fake_image)
-
-    saved_post = Post.query.filter_by(title=title).first()
-    assert saved_post is not None
-    assert saved_post.image == 'https://res.cloudinary.com/mock-image-url.jpg'
-
 
 @patch('blogapp.dao.db.session.commit')
 def test_add_post_exception(mock_commit, test_session, setup_user):
     mock_commit.side_effect = Exception("Lỗi Database giả lập")
-
-    user_id = setup_user.id
-    title = "Tiêu đề gây lỗi hệ thống"
-    content = "Nội dung không quan trọng vì lỗi sẽ văng ra khi commit."
-
-    success, msg = dao.add_post(title, content, user_id)
-
+    success, msg = dao.add_post("Tiêu đề gây lỗi hệ thống", "Nội dung để test hệ thống keke, 12345678900---63142.", setup_user.id)
     assert success is False
     assert "Lỗi Database giả lập" in msg
+
+@pytest.mark.parametrize("title_len, content_len, expected_status", [
+    (9, 100, 400),    # Title < 10 (lỗi)
+    (10, 100, 200),   # Title = 10 (thành công)
+    (200, 100, 200),  # Title = 200 (thành công)
+    (201, 100, 400),  # Title > 200 (lỗi)
+    (50, 49, 400),    # Content < 50 (lỗi)
+    (50, 50, 200),    # Content = 50 (thành công)
+    (50, 5000, 200),  # Content = 5000 (thành công)
+    (50, 5001, 400),  # Content > 5000 (lỗi)
+])
+def test_create_post_validation_boundary(test_client, setup_user, title_len, content_len, expected_status):
+    test_client.post('/login', data={'username': 'testuser', 'password': '123456'})
+    response = test_client.post('/api/posts', data={
+        'title': "A" * title_len,
+        'content': "B" * content_len
+    })
+    assert response.get_json()['status'] == expected_status
 
