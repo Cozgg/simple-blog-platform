@@ -1,5 +1,6 @@
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
     <div class="container-fluid">
+
         <a class="navbar-brand" href="/">Blog Website</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
@@ -7,13 +8,12 @@
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/">Trang chủ</a>
+                    <a class="nav-link" href="/">Trang chủ</a>
                 </li>
-
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link text-danger" href="/">
-                        <img src="{{ current_user.avatar }}" class="rounded-circle" width="40"/>
+                        <img src="{{current_user.avatar}}" width="40" class="rounded-circle"/>
                         Chào {{ current_user.username }}!
                     </a>
                 </li>
@@ -25,6 +25,7 @@
                     <a class="nav-link text-danger" href="/login">Đăng nhập</a>
                 </li>
                 <li class="nav-item">
+
                     <a class="nav-link text-success" href="/register">Đăng ký</a>
                 </li>
                 {% endif %}
