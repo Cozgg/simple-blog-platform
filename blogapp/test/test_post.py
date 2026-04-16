@@ -65,7 +65,7 @@ def test_delete_over_10_comments_confirmed(sample_post):
     u = MockUser(1)
     dao.delete_post(post_id=p.id, current_user=u, is_confirmed=True)
 
-    assert dao.get_posts(p.id) is None
+    assert dao.get_posts(id=p.id) is None
 
 
 def test_delete_wrong_permission(sample_post):

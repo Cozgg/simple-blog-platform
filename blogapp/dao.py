@@ -36,7 +36,7 @@ def delete_post(post_id, current_user, is_confirmed=False):
         raise ValueError('Bài viết ko tồn tại')
 
     if p.is_pinned:
-        raise ValueError('Bài viết đang ghim ko được xóa')
+        raise ValueError('Bài viết đang ghim không được xóa')
 
     if p.user_id != current_user.id and current_user.user_role != UserRole.ADMIN:
         raise PermissionError('Chỉ admin hoặc tác giả mới được xóa')
