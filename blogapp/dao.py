@@ -2,7 +2,7 @@ import hashlib
 import re
 import cloudinary
 from sqlalchemy.exc import IntegrityError
-from blogapp import db
+from blogapp import db, app
 from blogapp.models import Post, User, UserRole, Comment
 from datetime import  datetime
 from sqlalchemy import desc

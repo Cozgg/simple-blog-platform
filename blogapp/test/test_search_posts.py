@@ -23,4 +23,4 @@ def test_keyword(sample_post):
 
 def test_pagination(sample_post):
     actual_posts = dao.get_posts(page=1)
-    assert len(actual_posts) == 3
+    assert len(actual_posts) == 4

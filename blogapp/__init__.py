@@ -12,7 +12,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["PAGE_SIZE"] = 8
 
 
-
 mail = Mail(app=app)
 db = SQLAlchemy(app=app)
 login = LoginManager(app=app)
