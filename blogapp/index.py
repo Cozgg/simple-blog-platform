@@ -39,6 +39,7 @@ def add_comment():
 
 
 @app.route('/post-detail/<int:post_id>', methods=['GET'])
+@login_required
 def post_detail_view(post_id):
     p = dao.get_posts(id=post_id)
     return render_template('post-detail.html', post=p)
