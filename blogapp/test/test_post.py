@@ -14,10 +14,10 @@ class MockUser:
 
 @pytest.fixture
 def sample_post(test_session):
-    p1 = Post(id=1, title='post 1', content='post content 1', user_id=1, is_locked=False, is_pinned=False)
-    p2 = Post(id=2, title='post 2', content='post content 2', user_id=1, is_locked=False, is_pinned=False)
-    p3 = Post(id=3, title='post 3', content='post content 3', user_id=1, is_locked=False, is_pinned=False)
-    p4 = Post(id=4, title='post 4', content='post content 4', user_id=1, is_locked=False, is_pinned=False)
+    p1 = Post(id=1, title='bach tuyet va 7 chu lun', content='post content 1', user_id=1, is_locked=False, is_pinned=False)
+    p2 = Post(id=2, title='con meo trang va 10 con cho den', content='post content 2', user_id=1, is_locked=False, is_pinned=False)
+    p3 = Post(id=3, title='chuyen tinh cua 2 con meo', content='post content 3', user_id=1, is_locked=False, is_pinned=False)
+    p4 = Post(id=4, title='dien thoai gia re ???', content='post content 4', user_id=1, is_locked=False, is_pinned=False)
     comments = []
     for i in range(1, 12):
         c = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p1.id, parent_id=None)
@@ -72,7 +72,7 @@ def test_delete_wrong_permission(sample_post):
     p = sample_post[0]
     u = MockUser(2)
     with pytest.raises(PermissionError, match='Chỉ admin hoặc tác giả mới được xóa'):
-        assert dao.delete_post(post_id=p.id, current_user=u)
+        dao.delete_post(post_id=p.id, current_user=u)
 
 
 @pytest.mark.parametrize(
@@ -82,7 +82,7 @@ def test_delete_wrong_permission(sample_post):
         (1, 2, False, False, pytest.raises(PermissionError)),
         (2, 1, False, False, does_not_raise()),  # bài viết có 10 comments
         (3, 1, False, False, does_not_raise()),  # bài viết có 9 comments
-        (2, 1, False, False, does_not_raise()),  # bài viết có 0 comments
+        (1, 1, False, False, does_not_raise()),  # bài viết có 0 comments
         (0, 1, False, False, pytest.raises(ValueError)),  # Lỗi > 10 comment nhưng chưa confirm
         (0, 1, False, True, does_not_raise()),  # Xóa thành công (> 10 comment và đã confirm)
     ]
@@ -94,3 +94,10 @@ def test_delete_post_all(sample_post, post_idx, user_id_mock, is_pinned, is_conf
 
     with expected_exception:
         dao.delete_post(post_id=p.id, current_user=u, is_confirmed=is_confirmed)
+
+
+def test_count_posts(sample_post):
+    actual_post = dao.get_posts()
+    assert len(actual_post) == dao.count_posts()
+
+
