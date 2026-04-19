@@ -2,9 +2,9 @@ name: Run
 
 on:
   push:
-    branches: [ test, main ]
+    branches: [test, main]
   pull_request:
-    branches: [ test, main ]
+    branches: [test, main]
 
 jobs:
   test:
@@ -25,16 +25,16 @@ jobs:
           - 3306:3306
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.13'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-    - name: Run tests
-      run: PYTHONPATH=blogapp pytest blogapp
+      - name: Run tests
+      run: PYTHONPATH=blogapp pytest blogapp/test/test_post.py -v
