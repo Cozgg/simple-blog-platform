@@ -5,7 +5,7 @@ from .. import dao
 from ..models import Post, Comment, User, UserRole
 from cloudinary import uploader
 import cloudinary.uploader
-
+import hashlib
 from contextlib import nullcontext as does_not_raise
 
 
@@ -17,18 +17,27 @@ class MockUser:
 
 @pytest.fixture
 def sample_post(test_session):
-    p1 = Post(id=1, title='post 1', content='post content 1', user_id=1, is_locked=False, is_pinned=False)
-    p2 = Post(id=2, title='post 2', content='post content 2', user_id=1, is_locked=False, is_pinned=False)
-    p3 = Post(id=3, title='post 3', content='post content 3', user_id=1, is_locked=False, is_pinned=False)
-    p4 = Post(id=4, title='post 4', content='post content 4', user_id=1, is_locked=False, is_pinned=False)
+    import hashlib
+    pw_hash = str(hashlib.md5("123456".encode('utf-8')).hexdigest())
+    # Không hardcode id, để SQLAlchemy tự generate
+    user1 = User(name="canh huynh", username="testuser", password=pw_hash, email="canh@gmail.com", user_role=UserRole.USER)
+    user2 = User(name="huu cong", username="testuser2", password=pw_hash, email="cong@gmail.com", user_role=UserRole.USER)
+    test_session.add_all([user1, user2])
+    test_session.flush()  
+    
+    # Giờ dùng user.id thực tế
+    p1 = Post(id=1, title='post 1', content='post content 1', user_id=user1.id, is_locked=False, is_pinned=False)
+    p2 = Post(id=2, title='post 2', content='post content 2', user_id=user1.id, is_locked=False, is_pinned=False)
+    p3 = Post(id=3, title='post 3', content='post content 3', user_id=user1.id, is_locked=False, is_pinned=False)
+    p4 = Post(id=4, title='post 4', content='post content 4', user_id=user1.id, is_locked=False, is_pinned=False)
     comments = []
     for i in range(1, 12):
-        c = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p1.id, parent_id=None)
+        c = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p1.id, parent_id=None)
         if i > 1:
-            c1 = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p3.id, parent_id=None)
+            c1 = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p3.id, parent_id=None)
             comments.append(c1)
         if i > 2:
-            c2 = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p4.id, parent_id=None)
+            c2 = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p4.id, parent_id=None)
             comments.append(c2)
         comments.append(c)
     test_session.add_all([p1, p2, p3, p4] + comments)
