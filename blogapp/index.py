@@ -20,6 +20,12 @@ def add_comment():
     content = request.json.get('content')
     post_id = request.json.get('post_id')
 
+    if len(content) < 5:
+        return jsonify({
+            "status": 400,
+            "err_msg": "Nội dung của bình luận tối thiểu 5 kí tự"
+        })
+
     try:
         dao.save_comment(content=content, post_id=post_id, user_id=current_user.id)
         return jsonify({
