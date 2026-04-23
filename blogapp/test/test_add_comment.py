@@ -10,40 +10,48 @@ import hashlib
 @pytest.fixture
 def sample_data(test_session):
     u1 = User(name='Ngọc Sơn', username='ngocson',
-              password=str(hashlib.md5("123456".encode('utf-8')).hexdigest())
-              , user_role=UserRole.USER,
+              password=str(hashlib.md5("123456".encode('utf-8')).hexdigest()),
+              user_role=UserRole.USER,
               email="ngocson@gmail.com",
               avatar="https://res.cloudinary.com/dpl8syyb9/image/upload/v1764237405/ecjxy41wdhl7k03scea8.jpg")
 
     u2 = User(name='Thế Cảnh', username='canhhuynh',
-              password=str(hashlib.md5("123456".encode('utf-8')).hexdigest())
-              , user_role=UserRole.USER,
-              email="ngocson@gmail.com",
+              password=str(hashlib.md5("123456".encode('utf-8')).hexdigest()),
+              user_role=UserRole.USER,
+              email="thecanh@gmail.com",
               avatar="https://res.cloudinary.com/dpl8syyb9/image/upload/v1764237405/ecjxy41wdhl7k03scea8.jpg")
 
-    p1 = Post(title='Post Open', content='Content 1', user_id=1, is_locked=False)
-    p2 = Post(title='Post Locked', content='Content 2', user_id=1, is_locked=True)
+    test_session.add_all([u1, u2])
+    test_session.commit()
 
-    c1 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=None,
+    p1 = Post(title='Post Open', content='Content 1', user_id=u1.id, is_locked=False)
+    p2 = Post(title='Post Locked', content='Content 2', user_id=u1.id, is_locked=True)
+
+    test_session.add_all([p1, p2])
+    test_session.commit()
+
+    c1 = Comment(content="Comment post open 1", user_id=u1.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 20:00:05", "%Y-%m-%d %H:%M:%S"))
     test_session.add(c1)
     test_session.commit()
-    c2 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=c1.id,
+
+    c2 = Comment(content="Comment post open 1", user_id=u1.id, post_id=p1.id, parent_id=c1.id,
                  created_date=datetime.strptime("2026-03-28 22:00:05", "%Y-%m-%d %H:%M:%S"))
-    c3 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=c1.id,
+    c3 = Comment(content="Comment post open 1", user_id=u1.id, post_id=p1.id, parent_id=c1.id,
                  created_date=datetime.strptime("2026-03-28 22:15:20", "%Y-%m-%d %H:%M:%S"))
-    c4 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=None,
+    c4 = Comment(content="Comment post open 1", user_id=u1.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 22:30:00", "%Y-%m-%d %H:%M:%S"))
-    c5 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=None,
+    c5 = Comment(content="Comment post open 1", user_id=u1.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 22:45:30", "%Y-%m-%d %H:%M:%S"))
 
-    c6 = Comment(content="Comment post open 1", user_id=2, post_id=1, parent_id=None,
+    c6 = Comment(content="Comment post open 1", user_id=u2.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 22:59:59", "%Y-%m-%d %H:%M:%S"))
-    c7 = Comment(content="Comment post open 1", user_id=2, post_id=1, parent_id=None,
+    c7 = Comment(content="Comment post open 1", user_id=u2.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 23:59:59", "%Y-%m-%d %H:%M:%S"))
 
-    test_session.add_all([p1, p2, c2, c3, c4, c5, c6, c7, u1, u2])
+    test_session.add_all([c2, c3, c4, c5, c6, c7])
     test_session.commit()
+
     return [p1, p2, c1, c2, c3, c4, c5, c6, c7, u1, u2]
 
 def test_save_comment_success(sample_data, test_session):

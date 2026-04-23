@@ -2,6 +2,7 @@ import pytest
 from flask import Flask
 
 from blogapp import db
+from blogapp.index import register_routers
 
 def create_app():
     app = Flask(__name__)
@@ -11,6 +12,8 @@ def create_app():
     app.secret_key='afhfejsdfsdfHJBhj7'
     db.init_app(app)
 
+    register_routers(app=app)
+    
     return app
 
 
