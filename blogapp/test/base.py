@@ -1,15 +1,13 @@
 import pytest
 from flask import Flask
 
-from blogapp import db
+from blogapp import db, app
 
 def create_app():
-    app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    app.config["PAGE_SIZE"] = 2
+    app.config["PAGE_SIZE"] = 8
     app.config['TESTING'] = True
     app.secret_key='afhfejsdfsdfHJBhj7'
-    db.init_app(app)
 
     return app
 
@@ -20,6 +18,7 @@ def test_app():
     with app.app_context():
         db.create_all()
         yield app
+        db.session.remove()
         db.drop_all()
 
 @pytest.fixture
