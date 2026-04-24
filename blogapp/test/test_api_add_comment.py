@@ -124,7 +124,7 @@ def test_reached_comment_limit(test_client,test_session, mocker):
     res = test_client.post(
         "/api/comments",
         json={
-            "content": "Đây là comment thứ 6",
+            "content": "Đây là comment không hợp lệ thứ 6",
             "post_id": p1.id
         }
     )
