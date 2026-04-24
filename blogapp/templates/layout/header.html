@@ -1,32 +1,43 @@
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4 text-dark" href="/">BlogPlatform.</a>
 
-        <a class="navbar-brand" href="/">Blog Website</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Trang chủ</a>
+                    <a class="nav-link active text-dark fw-medium" href="/">Trang chủ</a>
                 </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto align-items-center">
                 {% if current_user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="/">
-                        <img src="{{current_user.avatar}}" width="40" class="rounded-circle"/>
-                        Chào {{ current_user.username }}!
+                <li class="nav-item me-3 mb-2 mb-lg-0">
+                    <a class="btn btn-primary rounded-pill px-4 fw-medium" href="/create-post">
+                        Viết bài
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="/logout">Đăng xuất</a>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" data-bs-toggle="dropdown">
+                        <img src="{{ current_user.avatar }}" class="rounded-circle border" width="38" height="38" style="object-fit: cover;"/>
+                        <span class="ms-2 text-dark fw-medium">{{ current_user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                        <li><a class="dropdown-item" href="/profile">Trang cá nhân</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="/logout">Đăng xuất</a></li>
+                    </ul>
                 </li>
                 {% else %}
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="/login">Đăng nhập</a>
+                <li class="nav-item me-2 mb-2 mb-lg-0">
+                    <a class="btn btn-light rounded-pill px-4 fw-medium text-dark" href="/login">Đăng nhập</a>
                 </li>
                 <li class="nav-item">
-
-                    <a class="nav-link text-success" href="/register">Đăng ký</a>
+                    <a class="btn btn-dark rounded-pill px-4 fw-medium" href="/register">Đăng ký</a>
                 </li>
                 {% endif %}
             </ul>

@@ -5,7 +5,7 @@ from blogapp import db, app
 
 def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    app.config["PAGE_SIZE"] = 2
+    app.config["PAGE_SIZE"] = 8
     app.config['TESTING'] = True
     app.secret_key='afhfejsdfsdfHJBhj7'
 
