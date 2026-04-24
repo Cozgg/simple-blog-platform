@@ -1,9 +1,10 @@
 import math
-from flask_login import current_user, logout_user, login_user, login_required
-from blogapp.decorators import login_required as custom_login_required
+
+from flask_login import login_required, current_user, logout_user, login_user
 
 from blogapp import app, dao, login
 from flask import render_template, jsonify, request, redirect
+
 from blogapp.models import UserRole
 
 @app.route('/')
@@ -13,12 +14,31 @@ def index():
     return render_template('index.html', posts=posts,
                            pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
 
-@login.user_loader
-def load_user(user_id):
-    return dao.get_users(user_id)
+@app.route('/api/comments', methods=['POST'])
+@login_required
+def add_comment():
+    content = request.json.get('content')
+    post_id = request.json.get('post_id')
+
+    try:
+        dao.save_comment(content=content, post_id=post_id, user_id=current_user.id)
+        return jsonify({
+            "status": 201,
+            "msg": "Đã đăng tải thành công bình luận",
+        })
+    except PermissionError as e:
+        return jsonify({
+            "status": 400,
+            "err_msg": str(e)
+        })
+    except Exception as ex:
+        return jsonify({
+            "status": 500,
+            "err_msg": "Lỗi hệ thống không xác định"
+        })
+
 
 @app.route('/post-detail/<int:post_id>', methods=['GET'])
-@login_required
 def post_detail_view(post_id):
     p = dao.get_posts(id=post_id)
     return render_template('post-detail.html', post=p)
@@ -27,22 +47,6 @@ def post_detail_view(post_id):
 def login_view():
     return render_template('login.html')
 
-@app.route('/login', methods=['post'])
-def login_process():
-    username = request.form.get('username')
-    password = request.form.get('password')
-
-    user = dao.auth_user(username=username, password=password)
-    if user:
-        login_user(user=user)
-
-    next = request.args.get('next')
-    return redirect(next if next else '/')
-
-@app.route('/logout')
-def logout_process():
-    logout_user()
-    return redirect('/login')
 
 @app.route('/register')
 def register_view():
@@ -66,34 +70,25 @@ def register_process():
     except Exception as ex:
         return render_template('register.html', err_msg=str(ex))
 
-@app.route('/api/posts', methods=['POST'])
-@custom_login_required(UserRole.USER)
-def create_post_api():
-    try:
-        title = request.form.get('title', '').strip()
-        content = request.form.get('content', '').strip()
-        image = request.files.get('image')
 
-        if not title or len(title) < 10 or len(title) > 200:
-            return jsonify({'status': 400, 'err_msg': 'Tiêu đề phải từ 10 đến 200 ký tự'})
 
-        if not content or len(content) < 50 or len(content) > 5000:
-            return jsonify({'status': 400, 'err_msg': 'Nội dung phải từ 50 đến 5000 ký tự'})
+@app.route('/logout')
+def logout_process():
+    logout_user()
+    return redirect('/login')
 
-        success, msg = dao.add_post(
-            title=title,
-            content=content,
-            user_id=current_user.id,
-            image=image
-        )
 
-        if success:
-            return jsonify({'status': 200, 'msg': msg})
+@app.route('/login', methods=['post'])
+def login_process():
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-        return jsonify({'status': 400, 'err_msg': msg})
+    user = dao.auth_user(username=username, password=password)
+    if user:
+        login_user(user=user)
 
-    except Exception as e:
-        return jsonify({'status': 500, 'err_msg': str(e)})
+    next = request.args.get('next')
+    return redirect(next if next else '/')
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
 @login_required
@@ -113,6 +108,9 @@ def delete_posts(post_id):
             'err_msg': str(e)
         })
 
+@login.user_loader
+def load_user(id):
+    return dao.get_user_by_id(id)
 
 if __name__ == '__main__':
     from blogapp import admin

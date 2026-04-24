@@ -26,6 +26,7 @@ class User(BaseModel, UserMixin):
     user_role = Column(Enum(UserRole), default=UserRole.USER)
     email = Column(String(100), nullable=False)
 
+    # Thiết lập mối quan hệ
     posts = relationship('Post', backref='author', lazy=True)
     comments = relationship('Comment', backref='user', lazy=True)
 
@@ -33,7 +34,6 @@ class User(BaseModel, UserMixin):
 class Post(BaseModel):
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
-    image = Column(String(255))
     is_locked = Column(Boolean, default=False)
     is_pinned = Column(Boolean, default=False)
 
@@ -50,6 +50,7 @@ class Comment(BaseModel):
 
     parent_id = Column(Integer, ForeignKey('comment.id'))
     replies = relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'), lazy=True)
+
 
 if __name__ == '__main__':
     with app.app_context():
@@ -71,15 +72,15 @@ if __name__ == '__main__':
         )
 
         users = [
-            User(name='Huu Cong', username='cozg',
+            User(name='Ngọc Sơn', username='ngocson',
                  password=hash_pass("123456"), user_role=UserRole.USER,
-                 email="cozg@gmail.com", avatar=default_avt),
+                 email="ngocson@gmail.com", avatar=default_avt),
             User(name='Thế Cảnh', username='canhhuynh',
                  password=hash_pass("123456"), user_role=UserRole.USER,
                  email="canh@gmail.com", avatar=default_avt),
-            User(name='Nem chua', username='nemchua',
+            User(name='Kim Nhân', username='nhanpham',
                  password=hash_pass("123456"), user_role=UserRole.USER,
-                 email="36@gmail.com", avatar=default_avt)
+                 email="nhan@gmail.com", avatar=default_avt)
         ]
 
         db.session.add(admin_user)

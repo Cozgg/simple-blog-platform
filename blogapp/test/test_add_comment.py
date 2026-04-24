@@ -26,6 +26,8 @@ def sample_data(test_session):
 
     c1 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 20:00:05", "%Y-%m-%d %H:%M:%S"))
+    test_session.add(c1)
+    test_session.commit()
     c2 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=c1.id,
                  created_date=datetime.strptime("2026-03-28 22:00:05", "%Y-%m-%d %H:%M:%S"))
     c3 = Comment(content="Comment post open 1", user_id=1, post_id=1, parent_id=c1.id,
@@ -40,7 +42,7 @@ def sample_data(test_session):
     c7 = Comment(content="Comment post open 1", user_id=2, post_id=1, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 23:59:59", "%Y-%m-%d %H:%M:%S"))
 
-    test_session.add_all([p1, p2, c1, c2, c3, c4, c5, c6, c7, u1, u2])
+    test_session.add_all([p1, p2, c2, c3, c4, c5, c6, c7, u1, u2])
     test_session.commit()
     return [p1, p2, c1, c2, c3, c4, c5, c6, c7, u1, u2]
 
