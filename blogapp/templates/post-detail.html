@@ -3,83 +3,114 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5" style="max-width: 800px;">
-    <article class="mb-5">
-        <header class="mb-4 border-bottom pb-3">
-            <h1 class="fw-bolder mb-2 text-dark">{{ post.title }}</h1>
-            <div class="text-muted small">
-                <span class="fw-medium">Tác giả ID: {{ post.user_id }}</span>
-                {% if post.is_pinned %}<span class="badge bg-primary ms-2">Đã ghim</span>{% endif %}
-                {% if post.is_locked %}<span class="badge bg-secondary ms-2">Đã khóa</span>{% endif %}
-            </div>
-        </header>
-        <section class="fs-5 lh-lg text-secondary">
-            {{ post.content | replace('\n', '<br>') | safe }}
-        </section>
-    </article>
-
-    <section class="mb-5 bg-light p-4 rounded-4 shadow-sm border">
-        <h5 class="mb-4 fw-bold text-dark">Bình luận ({{ post.comments|length }})</h5>
-
-        {% if current_user.is_authenticated %}
-            {% if not post.is_locked %}
-            <form class="mb-5" action="/post/{{ post.id }}/comment" method="POST">
-                <textarea class="form-control mb-3 border-0 shadow-sm" rows="3" name="content" placeholder="Viết bình luận của bạn (tối thiểu 5 ký tự)..." required minlength="5"></textarea>
-                <button type="submit" class="btn btn-dark rounded-pill px-4 fw-medium">Gửi bình luận</button>
-            </form>
-            {% else %}
-            <div class="alert alert-warning rounded-3 border-0">Bài viết đã bị khóa, không thể bình luận.</div>
-            {% endif %}
-        {% else %}
-        <div class="alert alert-secondary rounded-3 border-0 mb-5">
-            Vui lòng <a href="/login" class="text-dark fw-bold custom-hover">đăng nhập</a> để tham gia bình luận.
-        </div>
-        {% endif %}
-
-        <div class="comment-list">
-            {% for comment in post.comments %}
-                {% if not comment.parent_id %}
-                <div class="d-flex mb-4">
-                    <div class="flex-shrink-0">
-                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-weight: bold;">
-                            U{{ comment.user_id }}
-                        </div>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto mb-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h2 class="card-title fw-bold mb-0 text-dark">
+                            {{ post.title }}
+                            {% if post.is_pinned %}
+                            <span class="badge bg-primary ms-1 small">Đã ghim</span>
+                            {% endif %}
+                            {% if post.is_locked %}
+                            <span class="badge bg-secondary ms-1 small">Đã khóa</span>
+                            {% endif %}
+                        </h2>
                     </div>
-                    <div class="ms-3 flex-grow-1">
-                        <div class="fw-bold text-dark">User ID: {{ comment.user_id }}</div>
-                        <p class="mb-1 text-secondary">{{ comment.content }}</p>
 
-                        {% if current_user.is_authenticated and not post.is_locked %}
-                            <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none custom-hover small">Phản hồi</button>
-                        {% endif %}
-                        {% if current_user.is_authenticated and not post.is_locked and comment.user_id == current_user.id %}
-                            <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none custom-hover small">Xóa</button>
-                        {% endif %}
+                    <div class="text-muted small fw-medium mt-2 mb-3">
+                        Tác giả: {{ post.user.name }}
+                    </div>
 
-                        {% if comment.replies %}
-                        <div class="mt-3 border-start ps-3 border-2">
-                            {% for reply in comment.replies %}
-                            <div class="d-flex mb-3">
-                                <div class="flex-shrink-0">
-                                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 12px;">
-                                        U{{ reply.user_id }}
-                                    </div>
-                                </div>
-                                <div class="ms-2">
-                                    <div class="fw-bold text-dark small">User ID: {{ reply.user_id }}</div>
-                                    <p class="mb-0 small text-secondary">{{ reply.content }}</p>
+                    <hr class="text-muted">
+
+                    <p class="card-text text-secondary lh-lg fs-5 mt-3">
+                        {{ post.content | replace('\n', '<br>') | safe }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-4">Bình luận ({{ post.comments|length }})</h5>
+
+                    {% if current_user.is_authenticated %}
+                    {% if not post.is_locked %}
+                    <form class="mb-4" action="/post/{{ post.id }}/comment" method="POST">
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="comment" name="content"
+                                placeholder="Viết bình luận của bạn..." required minlength="5"
+                                style="height: 100px;"></textarea>
+                            <label for="comment">Viết bình luận của bạn (tối thiểu 5 ký tự)...</label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-dark">Gửi bình luận</button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning">Bài viết đã bị khóa, không thể bình luận.</div>
+                    {% endif %}
+                    {% else %}
+                    <div class="alert alert-secondary">
+                        Vui lòng <a href="/login" class="text-dark fw-bold">đăng nhập</a> để tham gia bình luận.
+                    </div>
+                    {% endif %}
+
+                    <hr class="text-muted">
+
+                    <div class="comment-list mt-4">
+                        {% for comment in post.comments %}
+                        {% if not comment.parent_id %}
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 45px; height: 45px; font-weight: bold;">
+                                    U{{ comment.user_id }}
                                 </div>
                             </div>
-                            {% endfor %}
+                            <div class="ms-3 flex-grow-1">
+                                <div class="fw-bold text-dark">User ID: {{ comment.user_id }}</div>
+                                <p class="mb-1 text-secondary">{{ comment.content }}</p>
+
+                                {% if current_user.is_authenticated and not post.is_locked %}
+                                <button
+                                    class="btn btn-sm btn-outline-dark p-0 text-decoration-none small me-2 border-0">Phản
+                                    hồi</button>
+                                {% endif %}
+                                {% if current_user.is_authenticated and not post.is_locked and comment.user_id ==
+                                current_user.id %}
+                                <button
+                                    class="btn btn-sm btn-danger p-0 text-decoration-none small px-2 py-1">Xóa</button>
+                                {% endif %}
+
+                                {% if comment.replies %}
+                                <div class="mt-3 border-start ps-3 border-2">
+                                    {% for reply in comment.replies %}
+                                    <div class="d-flex mb-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                style="width: 35px; height: 35px; font-size: 12px;">
+                                                U{{ reply.user_id }}
+                                            </div>
+                                        </div>
+                                        <div class="ms-2">
+                                            <div class="fw-bold text-dark small">User ID: {{ reply.user_id }}</div>
+                                            <p class="mb-0 small text-secondary">{{ reply.content }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                         {% endif %}
+                        {% else %}
+                        <p class="text-muted text-center mb-0">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endif %}
-            {% else %}
-                <p class="text-muted text-center mb-0">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
-            {% endfor %}
+            </div>
         </div>
-    </section>
+    </div>
 </div>
 {% endblock %}

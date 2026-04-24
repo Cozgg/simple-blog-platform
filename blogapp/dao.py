@@ -1,6 +1,9 @@
 import hashlib
 import re
 import cloudinary
+import cloudinary.uploader
+from sqlalchemy import desc
+
 from sqlalchemy.exc import IntegrityError
 from blogapp import db
 from blogapp.models import Post, User, UserRole, Comment
@@ -116,3 +119,19 @@ def save_comment(content, post_id, user_id):
         db.session.commit()
     except Exception as ex:
         db.session.rollback()
+
+def create_post(title, content, user_id, image=None):
+    if len(title) < 10 or len(title) > 200:
+        raise ValueError("Tiêu đề phải từ 10 đến 200 ký tự")
+    if len(content) < 50 or len(content) > 5000:
+        raise ValueError("Nội dung phải từ 50 đến 5000 ký tự")
+
+    post = Post(title=title, content=content, user_id=user_id)
+    if image:
+        res = cloudinary.uploader.upload(image)
+        url = res.get("secure_url")
+        post.content += f"\n\n<img src='{url}' class='img-fluid mt-3' alt='Post Image' />"
+
+    db.session.add(post)
+    db.session.commit()
+    return post
