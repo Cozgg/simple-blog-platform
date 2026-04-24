@@ -3,36 +3,31 @@
 {% block title %}Tạo bài viết{% endblock %}
 
 {% block content %}
-<div class="container mt-5" style="max-width: 800px;">
-    <h1 class="text-success text-center mb-4">TẠO BÀI VIẾT MỚI</h1>
+<h1 class="text-success text-center mt-2">TẠO BÀI VIẾT MỚI</h1>
 
-    {% if err_msg %}
-    <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 mb-4" role="alert">
-        {{ err_msg }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+{% if err_msg %}
+<div class="alert alert-danger">{{ err_msg }}</div>
+{% endif %}
+
+<form method="post" action="/create-post" enctype="multipart/form-data">
+    <div class="form-floating mb-3 mt-3">
+        <input type="text" class="form-control" id="title" placeholder="Tiêu đề bài viết" name="title" required minlength="10" maxlength="200"/>
+        <label for="title">Tiêu đề bài viết (10-200 ký tự)</label>
     </div>
-    {% endif %}
 
-    <form method="post" action="/create-post" enctype="multipart/form-data">
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="title" placeholder="Tiêu đề bài viết" name="title" required minlength="10" maxlength="200"/>
-            <label for="title">Tiêu đề bài viết (10-200 ký tự)</label>
-        </div>
+    <div class="form-floating mb-3 mt-3">
+        <textarea class="form-control" id="content" placeholder="Nội dung bài viết" name="content" style="height: 300px;" required minlength="50" maxlength="5000"></textarea>
+        <label for="content">Nội dung bài viết (50-5000 ký tự)</label>
+    </div>
 
-        <div class="form-floating mb-3">
-            <textarea class="form-control" id="content" placeholder="Nội dung bài viết" name="content" style="height: 300px;" required minlength="50" maxlength="5000"></textarea>
-            <label for="content">Nội dung bài viết (50-5000 ký tự)</label>
-        </div>
+    <div class="form-floating mt-3 mb-3">
+        <input class="form-control" type="file" id="image" name="image" accept="image/*"/>
+        <label for="image">Hình ảnh bài viết (tùy chọn)</label>
+    </div>
 
-        <div class="mb-3">
-            <label for="image" class="form-label">Hình ảnh bài viết (tùy chọn)</label>
-            <input class="form-control" type="file" id="image" name="image" accept="image/*"/>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="/" class="btn btn-outline-secondary">Quay lại</a>
-            <button type="submit" class="btn btn-success">Tạo bài viết</button>
-        </div>
-    </form>
-</div>
+    <div class="form-floating mt-3 mb-3">
+        <button type="submit" class="btn btn-danger">Tạo bài viết</button>
+        <a href="/" class="btn btn-outline-dark ms-2">Quay lại</a>
+    </div>
+</form>
 {% endblock %}
