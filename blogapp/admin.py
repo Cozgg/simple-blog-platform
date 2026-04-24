@@ -1,4 +1,3 @@
-
 from flask import redirect
 from flask_admin import BaseView, expose, AdminIndexView, Admin
 from flask_admin.contrib.sqla import ModelView
