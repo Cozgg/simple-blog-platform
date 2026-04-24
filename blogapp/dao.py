@@ -1,48 +1,57 @@
 import hashlib
 import re
 import cloudinary
-import cloudinary.uploader
-from sqlalchemy import desc
-
 from sqlalchemy.exc import IntegrityError
-from blogapp import db
+from blogapp import db, app
 from blogapp.models import Post, User, UserRole, Comment
 from datetime import  datetime
 from sqlalchemy import desc
 
-def get_users(id = None):
+def get_users(id=None):
     query = User.query
     if id:
         return query.get(id)
     return query.all()
 
-def get_posts(id = None):
+
+def get_posts(kw=None, id=None, page=None):
     query = Post.query
     if id:
         return query.get(id)
+    if kw:
+        query = query.filter(Post.title.contains(kw))
+    if page:
+        start = (page - 1) * app.config['PAGE_SIZE']
+        query = query.slice(start, start + app.config['PAGE_SIZE'])
     return query.all()
+
+
+def count_posts():
+    return Post.query.count()
+
 
 def delete_post(post_id, current_user, is_confirmed=False):
     p = Post.query.get(post_id)
     if not p:
         raise ValueError('Bài viết ko tồn tại')
 
-    if current_user.user_role != UserRole.ADMIN or p.user_id != current_user.id:
+    if p.is_pinned:
+        raise ValueError('Bài viết đang ghim không được xóa')
+
+    if p.user_id != current_user.id and current_user.user_role != UserRole.ADMIN:
         raise PermissionError('Chỉ admin hoặc tác giả mới được xóa')
 
-    if p.is_pinned:
-        raise ValueError('Bài viết đang ghim ko được xóa')
-
-    if p.comments > 10 and not is_confirmed:
+    if len(p.comments) > 10 and not is_confirmed:
         raise ValueError('Bài viết có hơn 10 bình luận, cần xác nhận xóa')
 
     db.session.delete(p)
     db.session.commit()
 
+
 def add_user(name, username, password, avatar):
     if len(username) < 5:
         raise ValueError("username phai it nhat co 5 ki tu")
-    if len(password) <8:
+    if len(password) < 8:
         raise ValueError("mat khau phai it nhat co 8 ki tu")
     if not re.search(r'[0-9]', password):
         raise ValueError("Mật khẩu phải chứa ít nhất một chữ số")
@@ -63,10 +72,12 @@ def add_user(name, username, password, avatar):
         db.session.rollback()
         raise Exception('Username đã tồn tại!')
 
+
 def auth_user(username, password):
     password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    return User.query.filter(User.username==username,
-                             User.password==password).first()
+    return User.query.filter(User.username == username,
+                             User.password == password).first()
+
 
 def get_user_by_id(id):
     return User.query.get(id)
@@ -119,19 +130,3 @@ def save_comment(content, post_id, user_id):
         db.session.commit()
     except Exception as ex:
         db.session.rollback()
-
-def create_post(title, content, user_id, image=None):
-    if len(title) < 10 or len(title) > 200:
-        raise ValueError("Tiêu đề phải từ 10 đến 200 ký tự")
-    if len(content) < 50 or len(content) > 5000:
-        raise ValueError("Nội dung phải từ 50 đến 5000 ký tự")
-
-    post = Post(title=title, content=content, user_id=user_id)
-    if image:
-        res = cloudinary.uploader.upload(image)
-        url = res.get("secure_url")
-        post.content += f"\n\n<img src='{url}' class='img-fluid mt-3' alt='Post Image' />"
-
-    db.session.add(post)
-    db.session.commit()
-    return post

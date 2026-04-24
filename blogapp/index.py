@@ -39,6 +39,7 @@ def add_comment():
 
 
 @app.route('/post-detail/<int:post_id>', methods=['GET'])
+@login_required
 def post_detail_view(post_id):
     p = dao.get_posts(id=post_id)
     return render_template('post-detail.html', post=p)
@@ -51,26 +52,6 @@ def login_view():
 @app.route('/register')
 def register_view():
     return render_template('register.html')
-
-@app.route('/create-post', methods=['GET', 'POST'])
-def create_post_view():
-    if not current_user.is_authenticated:
-        return redirect('/login?next=/create-post')
-        
-    if request.method == 'POST':
-        title = request.form.get('title')
-        content = request.form.get('content')
-        image = request.files.get('image')
-        
-        try:
-            dao.create_post(title=title, content=content, user_id=current_user.id, image=image)
-            return redirect('/')
-        except ValueError as ex:
-            return render_template('create-post.html', err_msg=str(ex))
-        except Exception as ex:
-            return render_template('create-post.html', err_msg="Lỗi hệ thống: " + str(ex))
-
-    return render_template('create-post.html')
 
 @app.route('/register', methods=['post'])
 def register_process():
