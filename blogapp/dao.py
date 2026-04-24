@@ -1,60 +1,45 @@
-from datetime import datetime
 import hashlib
 import re
-
 import cloudinary
-from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
-from blogapp import db, app
+from blogapp import db
 from blogapp.models import Post, User, UserRole, Comment
-from datetime import date
+from datetime import  datetime
+from sqlalchemy import desc
 
-
-def get_users(id=None):
+def get_users(id = None):
     query = User.query
     if id:
         return query.get(id)
     return query.all()
 
-
-def get_posts(kw=None, id=None, page=None):
+def get_posts(id = None):
     query = Post.query
     if id:
         return query.get(id)
-    if kw:
-        query = query.filter(Post.title.contains(kw))
-    if page:
-        start = (page - 1) * app.config['PAGE_SIZE']
-        query = query.slice(start, start + app.config['PAGE_SIZE'])
     return query.all()
-
-
-def count_posts():
-    return Post.query.count()
-
 
 def delete_post(post_id, current_user, is_confirmed=False):
     p = Post.query.get(post_id)
     if not p:
         raise ValueError('Bài viết ko tồn tại')
 
-    if p.is_pinned:
-        raise ValueError('Bài viết đang ghim không được xóa')
-
-    if p.user_id != current_user.id and current_user.user_role != UserRole.ADMIN:
+    if current_user.user_role != UserRole.ADMIN or p.user_id != current_user.id:
         raise PermissionError('Chỉ admin hoặc tác giả mới được xóa')
 
-    if len(p.comments) > 10 and not is_confirmed:
+    if p.is_pinned:
+        raise ValueError('Bài viết đang ghim ko được xóa')
+
+    if p.comments > 10 and not is_confirmed:
         raise ValueError('Bài viết có hơn 10 bình luận, cần xác nhận xóa')
 
     db.session.delete(p)
     db.session.commit()
 
-
 def add_user(name, username, password, avatar):
     if len(username) < 5:
         raise ValueError("username phai it nhat co 5 ki tu")
-    if len(password) < 8:
+    if len(password) <8:
         raise ValueError("mat khau phai it nhat co 8 ki tu")
     if not re.search(r'[0-9]', password):
         raise ValueError("Mật khẩu phải chứa ít nhất một chữ số")
@@ -75,51 +60,13 @@ def add_user(name, username, password, avatar):
         db.session.rollback()
         raise Exception('Username đã tồn tại!')
 
-
 def auth_user(username, password):
     password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    return User.query.filter(User.username == username,
-                             User.password == password).first()
+    return User.query.filter(User.username==username,
+                             User.password==password).first()
 
-
-def add_post(title, content, user_id, image=None):
-    try:
-        today = date.today()
-
-        post_count_today = Post.query.filter(
-            Post.user_id == user_id,
-            db.func.date(Post.created_date) == today
-        ).count()
-
-        if post_count_today >= 10:
-            return False, "Bạn đã đạt giới hạn 10 bài đăng trong ngày"
-
-        # Khong duoc dang 2 bai trung tieu de trong 1 ngay
-        duplicate_title = Post.query.filter(
-            Post.title == title.strip(),
-            Post.user_id == user_id,
-            db.func.date(Post.created_date) == today
-        ).first()
-
-        if duplicate_title:
-            return False, "Bạn đã đăng bài với tiêu đề này trong hôm nay"
-
-        post = Post(
-            title=title.strip(),
-            content=content.strip(),
-            user_id=user_id
-        )
-
-        if image:
-            res = cloudinary.uploader.upload(image)
-            post.image = res.get('secure_url')
-
-        db.session.add(post)
-        db.session.commit()
-        return True, "Đăng bài viết thành công"
-    except Exception as e:
-        db.session.rollback()
-        return False, str(e)
+def get_user_by_id(id):
+    return User.query.get(id)
 
 def check_post_locked(post_id):
     post = db.session.get(Post, post_id)
