@@ -1,9 +1,10 @@
-from .base import test_app, test_session
 import pytest
-
+from unittest.mock import patch
+from .base import test_app, test_session, test_client
 from .. import dao
-from ..models import Post, Comment
+from ..models import Post, Comment, User, UserRole
 from contextlib import nullcontext as does_not_raise
+
 
 
 class MockUser:
@@ -11,27 +12,43 @@ class MockUser:
         self.id = user_id
         self.user_role = role
 
-
 @pytest.fixture
 def sample_post(test_session):
-    p1 = Post(id=1, title='bach tuyet va 7 chu lun', content='post content 1', user_id=1, is_locked=False, is_pinned=False)
-    p2 = Post(id=2, title='con meo trang va 10 con cho den', content='post content 2', user_id=1, is_locked=False, is_pinned=False)
-    p3 = Post(id=3, title='chuyen tinh cua 2 con meo', content='post content 3', user_id=1, is_locked=False, is_pinned=False)
-    p4 = Post(id=4, title='dien thoai gia re ???', content='post content 4', user_id=1, is_locked=False, is_pinned=False)
+    p1 = Post(id=1, title='bach tuyet va 7 chu lun', content='post content 1', user_id=1, is_locked=False, is_pinned=False, image=None)
+    p2 = Post(id=2, title='con meo trang va 10 con cho den', content='post content 2', user_id=1, is_locked=False, is_pinned=False, image=None)
+    p3 = Post(id=3, title='chuyen tinh cua 2 con meo', content='post content 3', user_id=1, is_locked=False, is_pinned=False,image=None)
+    p4 = Post(id=4, title='dien thoai gia re ???', content='post content 4', user_id=1, is_locked=False, is_pinned=False,image=None)
+    import hashlib
+    pw_hash = str(hashlib.md5("123456".encode('utf-8')).hexdigest())
+    # Không hardcode id, để SQLAlchemy tự generate
+    user1 = User(name="canh huynh", username="testuser", password=pw_hash, email="canh@gmail.com", user_role=UserRole.USER)
+    user2 = User(name="huu cong", username="testuser2", password=pw_hash, email="cong@gmail.com", user_role=UserRole.USER)
+    test_session.add_all([user1, user2])
+    test_session.flush()  
+
     comments = []
     for i in range(1, 12):
-        c = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p1.id, parent_id=None)
+        c = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p1.id, parent_id=None)
         if i > 1:
-            c1 = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p3.id, parent_id=None)
+            c1 = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p3.id, parent_id=None)
             comments.append(c1)
         if i > 2:
-            c2 = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p4.id, parent_id=None)
+            c2 = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p4.id, parent_id=None)
             comments.append(c2)
         comments.append(c)
     test_session.add_all([p1, p2, p3, p4] + comments)
     test_session.commit()
     return [p1, p2, p3, p4] + comments
 
+
+@pytest.fixture
+def setup_user(test_session):
+    import hashlib
+    pw_hash = str(hashlib.md5("123456".encode('utf-8')).hexdigest())
+    u = User(name="Test User", username="testuser", password=pw_hash, email="test@gmail.com", user_role=UserRole.USER)
+    test_session.add(u)
+    test_session.commit()
+    return u
 
 def test_existing_post(sample_post):
     actual_post = dao.get_posts()
@@ -43,6 +60,41 @@ def test_not_existing_post(sample_post):
     with pytest.raises(ValueError):
         dao.delete_post(post_id=999, current_user=u)
 
+
+def test_post_limit(test_session, setup_user):
+    user_id = setup_user.id
+    content_valid = "Nội dung này đủ dài để pass qua việc kiểm tra độ dài. OKE LUON E NHE"
+
+    title_duplicate = "Tiêu đề dùng để test trùng lặp"
+    success1, _ = dao.add_post(title_duplicate, content_valid, user_id)
+    assert success1 is True
+
+    success2, msg2 = dao.add_post(title_duplicate, content_valid, user_id)
+    assert success2 is False
+    assert "đã đăng bài với tiêu đề này" in msg2
+
+    for i in range(1, 10):
+        title = f"Tiêu đề không trùng lặp số {i} hợp lệ"
+        success, _ = dao.add_post(title, content_valid, user_id)
+        assert success is True
+
+    success_11, msg_11 = dao.add_post("Tiêu đề bài thứ 11", content_valid, user_id)
+    assert success_11 is False
+    assert "giới hạn 10 bài" in msg_11
+
+
+@patch('cloudinary.uploader.upload')
+def test_add_post_with_image(mock_upload, test_session, setup_user):
+    mock_upload.return_value = {'secure_url': 'https://res.cloudinary.com/mock-image-url.jpg'}
+    success, msg = dao.add_post("Tiêu đề có hình ảnh đính kèm", "Nội dung bài viết này có kèm theo hình ảnh rất đẹp dài hơn 50 ký tự nha.", setup_user.id, image="dummy_image")
+    assert success is True
+
+@patch('blogapp.dao.db.session.commit')
+def test_add_post_exception(mock_commit, test_session, setup_user):
+    mock_commit.side_effect = Exception("Lỗi Database")
+    success, msg = dao.add_post("Tiêu đề gây lỗi hệ thống", "Nội dung để test hệ thống keke, 12345678900---63142.", setup_user.id)
+    assert success is False
+    assert "Lỗi Database" in msg
 
 def test_delete_pinned_post(sample_post):
     p = sample_post[0]

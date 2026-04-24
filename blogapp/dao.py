@@ -1,11 +1,14 @@
+from datetime import datetime
 import hashlib
 import re
+
 import cloudinary
+from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 from blogapp import db, app
 from blogapp.models import Post, User, UserRole, Comment
-from datetime import  datetime
-from sqlalchemy import desc
+from datetime import date
+
 
 def get_users(id=None):
     query = User.query
@@ -79,8 +82,44 @@ def auth_user(username, password):
                              User.password == password).first()
 
 
-def get_user_by_id(id):
-    return User.query.get(id)
+def add_post(title, content, user_id, image=None):
+    try:
+        today = date.today()
+
+        post_count_today = Post.query.filter(
+            Post.user_id == user_id,
+            db.func.date(Post.created_date) == today
+        ).count()
+
+        if post_count_today >= 10:
+            return False, "Bạn đã đạt giới hạn 10 bài đăng trong ngày"
+
+        # Khong duoc dang 2 bai trung tieu de trong 1 ngay
+        duplicate_title = Post.query.filter(
+            Post.title == title.strip(),
+            Post.user_id == user_id,
+            db.func.date(Post.created_date) == today
+        ).first()
+
+        if duplicate_title:
+            return False, "Bạn đã đăng bài với tiêu đề này trong hôm nay"
+
+        post = Post(
+            title=title.strip(),
+            content=content.strip(),
+            user_id=user_id
+        )
+
+        if image:
+            res = cloudinary.uploader.upload(image)
+            post.image = res.get('secure_url')
+
+        db.session.add(post)
+        db.session.commit()
+        return True, "Đăng bài viết thành công"
+    except Exception as e:
+        db.session.rollback()
+        return False, str(e)
 
 def check_post_locked(post_id):
     post = db.session.get(Post, post_id)
