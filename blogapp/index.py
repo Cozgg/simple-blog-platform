@@ -1,5 +1,9 @@
+
 from flask_login import current_user, logout_user, login_user, login_required
 from blogapp.decorators import login_required as custom_login_required
+
+import math
+
 
 from blogapp import app, dao, login
 from flask import render_template, jsonify, request, redirect
@@ -7,11 +11,43 @@ from blogapp.models import UserRole
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    page = int(request.args.get('page', 1))
+    posts = dao.get_posts(page=page)
+    return render_template('index.html', posts=posts,
+                           pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
+
+@app.route('/api/comments', methods=['POST'])
+@login_required
+def add_comment():
+    content = request.json.get('content')
+    post_id = request.json.get('post_id')
+
+    try:
+        dao.save_comment(content=content, post_id=post_id, user_id=current_user.id)
+        return jsonify({
+            "status": 201,
+            "msg": "Đã đăng tải thành công bình luận",
+        })
+    except PermissionError as e:
+        return jsonify({
+            "status": 400,
+            "err_msg": str(e)
+        })
+    except Exception as ex:
+        return jsonify({
+            "status": 500,
+            "err_msg": "Lỗi hệ thống không xác định"
+        })
 
 @login.user_loader
 def load_user(user_id):
     return dao.get_user_by_id(user_id)
+
+@app.route('/post-detail/<int:post_id>', methods=['GET'])
+@login_required
+def post_detail_view(post_id):
+    p = dao.get_posts(id=post_id)
+    return render_template('post-detail.html', post=p)
 
 @app.route('/login')
 def login_view():
