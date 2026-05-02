@@ -13,9 +13,9 @@ def mock_login(mocker, user_id=1, role=UserRole.USER):
     mocker.patch("flask_login.utils._get_user", return_value=FakeUser())
     return FakeUser()
 
-@pytest.fixture(autouse=True)
-def setup_routes(test_app):
-    register_routers(test_app)
+# @pytest.fixture(autouse=True)
+# def setup_routes(test_app):
+#     register_routers(test_app)
 
 def test_create_post_success(test_client, mocker):
     mock_login(mocker)
