@@ -8,7 +8,6 @@ from datetime import  datetime
 from sqlalchemy import desc
 from datetime import date
 
-
 def get_users(id = None):
 
     query = User.query
@@ -123,6 +122,7 @@ def add_post(title, content, user_id, image=None):
     except Exception as e:
         db.session.rollback()
         return False, str(e)
+
 def check_post_locked(post_id):
     post = db.session.get(Post, post_id)
     if not post:
@@ -169,5 +169,7 @@ def save_comment(content, post_id, user_id):
         new_comment = Comment(content=content, post_id=post_id,user_id=user_id)
         db.session.add(new_comment)
         db.session.commit()
-    except Exception as ex:
+        return True, "Đăng bài viết thành công"
+    except Exception as e:
         db.session.rollback()
+        return False, str(e)

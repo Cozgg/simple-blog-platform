@@ -46,6 +46,7 @@ def sample_data(test_session):
 
     c6 = Comment(content="Comment post open 1", user_id=u2.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 22:59:59", "%Y-%m-%d %H:%M:%S"))
+
     c7 = Comment(content="Comment post open 1", user_id=u2.id, post_id=p1.id, parent_id=None,
                  created_date=datetime.strptime("2026-03-28 23:59:59", "%Y-%m-%d %H:%M:%S"))
 

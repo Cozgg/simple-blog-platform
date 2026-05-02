@@ -1,0 +1,33 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Tạo bài viết{% endblock %}
+
+{% block content %}
+<h1 class="text-success text-center mt-2">TẠO BÀI VIẾT MỚI</h1>
+
+{% if err_msg %}
+<div class="alert alert-danger">{{ err_msg }}</div>
+{% endif %}
+
+<form method="post" action="/create-post" enctype="multipart/form-data">
+    <div class="form-floating mb-3 mt-3">
+        <input type="text" class="form-control" id="title" placeholder="Tiêu đề bài viết" name="title" required minlength="10" maxlength="200"/>
+        <label for="title">Tiêu đề bài viết (10-200 ký tự)</label>
+    </div>
+
+    <div class="form-floating mb-3 mt-3">
+        <textarea class="form-control" id="content" placeholder="Nội dung bài viết" name="content" style="height: 300px;" required minlength="50" maxlength="5000"></textarea>
+        <label for="content">Nội dung bài viết (50-5000 ký tự)</label>
+    </div>
+
+    <div class="form-floating mt-3 mb-3">
+        <input class="form-control" type="file" id="image" name="image" accept="image/*"/>
+        <label for="image">Hình ảnh bài viết (tùy chọn)</label>
+    </div>
+
+    <div class="form-floating mt-3 mb-3">
+        <button type="submit" class="btn btn-danger">Tạo bài viết</button>
+        <a href="/" class="btn btn-outline-dark ms-2">Quay lại</a>
+    </div>
+</form>
+{% endblock %}

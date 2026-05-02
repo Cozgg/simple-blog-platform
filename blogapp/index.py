@@ -1,9 +1,11 @@
+
+import math
 from flask_login import current_user, logout_user, login_user, login_required
 from blogapp.decorators import login_required as custom_login_required
-import math
 from blogapp import app, dao, login
 from flask import render_template, jsonify, request, redirect
 from blogapp.models import UserRole
+
 
 @login.user_loader
 def load_user(user_id):
@@ -127,7 +129,6 @@ def register_routers(app):
     def delete_posts(post_id):
         try:
             is_firmed = request.args.get('confirmed')
-
             dao.delete_post(post_id=post_id, current_user=current_user, is_confirmed=is_firmed)
             return jsonify({
                 'status': 200,
