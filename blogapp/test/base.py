@@ -2,6 +2,7 @@ import pytest
 from flask import Flask
 
 from blogapp import db, app
+from blogapp.index import register_routers
 
 def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
@@ -9,6 +10,8 @@ def create_app():
     app.config['TESTING'] = True
     app.secret_key='afhfejsdfsdfHJBhj7'
 
+    register_routers(app=app)
+    
     return app
 
 
