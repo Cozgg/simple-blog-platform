@@ -1,8 +1,10 @@
+import hashlib
+
 from .base import test_app, test_session
 import pytest
 
 from .. import dao
-from ..models import Post, Comment
+from ..models import Post, Comment, User, UserRole
 from contextlib import nullcontext as does_not_raise
 
 
@@ -13,11 +15,22 @@ class MockUser:
 
 
 @pytest.fixture
-def sample_post(test_session):
-    p1 = Post(id=1, title='bach tuyet va 7 chu lun', content='post content 1', user_id=1, is_locked=False, is_pinned=False)
-    p2 = Post(id=2, title='con meo trang va 10 con cho den', content='post content 2', user_id=1, is_locked=False, is_pinned=False)
-    p3 = Post(id=3, title='chuyen tinh cua 2 con meo', content='post content 3', user_id=1, is_locked=False, is_pinned=False)
-    p4 = Post(id=4, title='dien thoai gia re ???', content='post content 4', user_id=1, is_locked=False, is_pinned=False)
+def sample_users(test_session):
+    pw_hash = str(hashlib.md5("123456".encode('utf-8')).hexdigest())
+    user1 = User(name="Test User 1", username="testuser1", password=pw_hash, email="test1@gmail.com", user_role=UserRole.USER)
+    user2 = User(name="Test User 2", username="testuser2", password=pw_hash, email="test2@gmail.com", user_role=UserRole.USER)
+    test_session.add_all([user1, user2])
+    test_session.commit()
+    return user1, user2
+
+@pytest.fixture
+def sample_post(test_session, sample_users):
+    user1, user2 = sample_users
+    p1 = Post(id=1, title='bach tuyet va 7 chu lun', content='post content 1', user_id=user1.id, is_locked=False, is_pinned=False)
+    p2 = Post(id=2, title='con meo trang va 10 con cho den', content='post content 2', user_id=user1.id, is_locked=False, is_pinned=False)
+    p3 = Post(id=3, title='chuyen tinh cua 2 con meo', content='post content 3', user_id=user1.id, is_locked=False, is_pinned=False)
+    p4 = Post(id=4, title='dien thoai gia re ???', content='post content 4', user_id=user1.id, is_locked=False, is_pinned=False)
+
     comments = []
     for i in range(1, 12):
         c = Comment(content=f"comment {i}", user_id=1 if i % 2 == 0 else 2, post_id=p1.id, parent_id=None)
