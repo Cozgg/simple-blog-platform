@@ -7,7 +7,7 @@ from blogapp.models import Post, User, UserRole, Comment
 from datetime import  datetime
 from sqlalchemy import desc
 from datetime import date
-
+from flask_login import current_user
 def get_users(id = None):
 
     query = User.query
