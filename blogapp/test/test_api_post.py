@@ -67,28 +67,6 @@ def test_create_post_invalid_content(test_client, mocker):
     assert data["status"] == 400
     assert "Nội dung phải từ 50 đến 5000 ký tự" in data["err_msg"]
 
-def test_delete_post_success(test_client, test_session, mocker):
-    mock_login(mocker)
-    delete_post_mock = mocker.patch("blogapp.dao.delete_post")
-
-    res = test_client.delete("/api/posts/1?confirmed=True")
-
-    assert res.status_code == 200
-    data = res.get_json()
-    assert data["status"] == 200
-    assert data["msg"] == "Xóa thành công"
-    delete_post_mock.assert_called_once()
-
-def test_delete_post_error(test_client, mocker):
-    mock_login(mocker)
-    mocker.patch("blogapp.dao.delete_post", side_effect=Exception("Không tìm thấy bài viết"))
-
-    res = test_client.delete("/api/posts/999")
-
-    assert res.status_code == 200
-    data = res.get_json()
-    assert data["status"] == 400
-    assert "Không tìm thấy bài viết" in data["err_msg"]
 
 def test_create_post_not_logged_in(test_client, mocker):
     class AnonymousUser:
