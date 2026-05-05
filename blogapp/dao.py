@@ -169,7 +169,48 @@ def save_comment(content, post_id, user_id):
         new_comment = Comment(content=content, post_id=post_id,user_id=user_id)
         db.session.add(new_comment)
         db.session.commit()
-        return True, "Đăng bài viết thành công"
+        return True, "Đăng bình luận thành công"
     except Exception as e:
         db.session.rollback()
         return False, str(e)
+
+def has_child_comments(comment_id):
+    return Comment.query.filter_by(parent_id=comment_id).first() is not None
+
+
+def get_all_child_ids(parent_id, all_ids=None):
+    if all_ids is None:
+        all_ids = []
+
+    children = Comment.query.filter_by(parent_id=parent_id).all()
+    for child in children:
+        all_ids.append(child.id)
+        get_all_child_ids(child.id, all_ids)
+
+    return all_ids
+
+
+def delete_comment(comment_id, current_user_id):
+    try:
+        comment = Comment.query.get(comment_id)
+        if not comment:
+            raise ValueError("Bình luận không tồn tại.")
+
+        if current_user_id != comment.user_id and current_user_id != comment.post.user_id:
+            raise PermissionError("Bạn không có quyền xóa.")
+
+        ids_to_delete = [comment_id]
+        if has_child_comments(comment_id):
+            child_ids = get_all_child_ids(comment_id)
+            ids_to_delete.extend(child_ids)
+
+        Comment.query.filter(Comment.id.in_(ids_to_delete)).delete(synchronize_session=False)
+
+        db.session.commit()
+        return True, f"Đã xóa bình luận và {len(ids_to_delete) - 1} phản hồi liên quan."
+    except (ValueError, PermissionError) as e:
+        db.session.rollback()
+        raise e
+    except Exception as e:
+        db.session.rollback()
+        return False, f"Lỗi: {str(e)}"
