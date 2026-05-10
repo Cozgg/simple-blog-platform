@@ -121,6 +121,13 @@ def register_routers(app):
                 
         return render_template('register.html')
 
+    @app.route('/create-post', methods=['GET', 'POST'])
+    @login_required
+    def create_post_view():
+        if request.method == 'POST':
+            pass
+        return render_template('create-post.html')
+
     @app.route('/api/posts', methods=['POST'])
     @custom_login_required(UserRole.USER)
     def create_post_api():
