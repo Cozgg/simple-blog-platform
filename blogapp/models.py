@@ -34,6 +34,7 @@ class User(BaseModel, UserMixin):
 class Post(BaseModel):
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
+    image = Column(String(255))
     is_locked = Column(Boolean, default=False)
     is_pinned = Column(Boolean, default=False)
 
