@@ -116,5 +116,47 @@ if __name__ == '__main__':
         )
         db.session.add(sample_comment)
 
+        comments = [
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+            user_id=users[2].id,
+            post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+            user_id=users[2].id,
+            post_id=2),
+        ]
+        db.session.add_all(comments)
         db.session.commit()
         print("Đã import dữ liệu mẫu thành công!")

@@ -38,7 +38,7 @@ def test_delete_post_success_with_confirmed(test_client, mocker):
     data = res.get_json()
     assert data["status"] == 204
     assert data["msg"] == "Xóa thành công"
-    delete_post_mock.assert_called_once_with(post_id=1, current_user=mocker.ANY, is_confirmed='true')
+    delete_post_mock.assert_called_once_with(post_id=1, current_user=mocker.ANY, is_confirmed=True)
 
 @pytest.mark.parametrize("exception_mock, err_msg", [
     (ValueError('Bài viết ko tồn tại'), 'Bài viết ko tồn tại'),
