@@ -49,8 +49,8 @@ class Comment(BaseModel):
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     post_id = Column(Integer, ForeignKey(Post.id), nullable=False)
 
-    parent_id = Column(Integer, ForeignKey('comment.id'))
-    replies = relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'), lazy=True)
+    parent_id = Column(Integer, ForeignKey('comment.id', ondelete='CASCADE'))
+    replies = relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'), lazy=True, cascade="all, delete-orphan")
 
 
 if __name__ == '__main__':
