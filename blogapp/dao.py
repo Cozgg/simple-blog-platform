@@ -161,12 +161,12 @@ def is_allow_to_comment(user_id, post_id):
 
     return True, None
 
-def save_comment(content, post_id, user_id):
+def save_comment(content, post_id, user_id, parent_id=None):
     allow, message = is_allow_to_comment(user_id, post_id)
     if not allow:
         raise PermissionError(message)
     try:
-        new_comment = Comment(content=content, post_id=post_id,user_id=user_id)
+        new_comment = Comment(content=content, post_id=post_id, user_id=user_id, parent_id=parent_id)
         db.session.add(new_comment)
         db.session.commit()
         return True, "Đăng bình luận thành công"

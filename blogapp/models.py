@@ -49,8 +49,8 @@ class Comment(BaseModel):
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     post_id = Column(Integer, ForeignKey(Post.id), nullable=False)
 
-    parent_id = Column(Integer, ForeignKey('comment.id'))
-    replies = relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'), lazy=True)
+    parent_id = Column(Integer, ForeignKey('comment.id', ondelete='CASCADE'))
+    replies = relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'), lazy=True, cascade="all, delete-orphan")
 
 
 if __name__ == '__main__':
@@ -116,5 +116,47 @@ if __name__ == '__main__':
         )
         db.session.add(sample_comment)
 
+        comments = [
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+            user_id=users[2].id,
+            post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+                    user_id=users[2].id,
+                    post_id=2),
+            Comment(content="Bài viết rất hay và bổ ích, cảm ơn tác giả!",
+            user_id=users[2].id,
+            post_id=2),
+        ]
+        db.session.add_all(comments)
         db.session.commit()
         print("Đã import dữ liệu mẫu thành công!")

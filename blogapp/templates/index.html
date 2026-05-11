@@ -39,13 +39,11 @@
                         <div>
                             <a href="{{url_for('post_detail_view', post_id=post.id)}}" class="btn btn-sm btn-outline-dark me-2">Đọc tiếp</a>
 
-                            {% if current_user.is_authenticated and current_user.id == post.user_id %}
-                            <form action="/delete-post/{{ post.id }}" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?');">
+                            {% if current_user.is_authenticated and current_user.id == post.user_id and not post.is_locked and not post.is_pinned %}
+                                <button type="button" class="btn btn-sm btn-danger"
+                                        onclick="deletePost({{ post.id }})">
                                     Xóa
                                 </button>
-                            </form>
                             {% endif %}
                         </div>
                     </div>
