@@ -2,13 +2,10 @@ import unittest
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-<<<<<<< HEAD:tests/test_create_post.py
-from pages.CreatePostPage import CreatePostPage
 from blogapp import app, db
 from blogapp.models import Post
-=======
+
 from blogapp.test.pages.CreatePostPage import CreatePostPage
->>>>>>> 3b36a7c52fd072efae3d757002559935daf4149d:blogapp/test/test_sel_create_post.py
 
 class TestCreatePost(unittest.TestCase):
     def setUp(self):
