@@ -48,6 +48,32 @@ def register_routers(app):
                 "err_msg": "Lỗi hệ thống không xác định"
             })
 
+    @app.route('/api/comments/<int:comment_id>', methods=['DELETE'])
+    @login_required
+    def delete_comment_api(comment_id):
+        try:
+            success, message = dao.delete_comment(comment_id, current_user.id)
+            return jsonify({
+                "status": 204,
+                "msg": message
+            })
+
+        except ValueError as e:
+            return jsonify({
+                "status": 404,
+                "err_msg": str(e)
+            })
+        except PermissionError as e:
+            return jsonify({
+                "status": 403,
+                "err_msg": str(e)
+            })
+        except Exception as ex:
+            return jsonify({
+                "status": 500,
+                "err_msg": "Lỗi hệ thống không xác định"
+            })
+
     @app.route('/post-detail/<int:post_id>', methods=['GET'])
     def post_detail_view(post_id):
         p = dao.get_posts(id=post_id)
@@ -94,6 +120,13 @@ def register_routers(app):
                 return render_template('register.html', err_msg=str(ex))
                 
         return render_template('register.html')
+
+    @app.route('/create-post', methods=['GET', 'POST'])
+    @login_required
+    def create_post_view():
+        if request.method == 'POST':
+            pass
+        return render_template('create-post.html')
 
     @app.route('/api/posts', methods=['POST'])
     @custom_login_required(UserRole.USER)
