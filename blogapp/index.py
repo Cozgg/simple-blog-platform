@@ -24,6 +24,7 @@ def register_routers(app):
     def add_comment():
         content = request.json.get('content')
         post_id = request.json.get('post_id')
+        parent_id = request.json.get('parent_id')
 
         if len(content) < 5:
             return jsonify({
@@ -32,7 +33,7 @@ def register_routers(app):
             })
 
         try:
-            dao.save_comment(content=content, post_id=post_id, user_id=current_user.id)
+            dao.save_comment(content=content, post_id=post_id, user_id=current_user.id, parent_id=parent_id)
             return jsonify({
                 "status": 201,
                 "msg": "Đã đăng tải thành công bình luận",
