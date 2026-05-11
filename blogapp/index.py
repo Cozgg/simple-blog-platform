@@ -161,7 +161,8 @@ def register_routers(app):
     @login_required
     def delete_posts(post_id):
         try:
-            is_firmed = request.args.get('confirmed')
+            is_firmed_str = request.args.get('confirmed', 'false').lower()
+            is_firmed = (is_firmed_str == 'true')
             dao.delete_post(post_id=post_id, current_user=current_user, is_confirmed=is_firmed)
             return jsonify({
                 'status': 204,
