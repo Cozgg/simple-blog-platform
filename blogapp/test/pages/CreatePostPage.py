@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
-from .BasePage import BasePage
+
+from blogapp.test.pages.BasePage import BasePage
+
 
 class CreatePostPage(BasePage):
     TITLE_INPUT = (By.ID, "title")

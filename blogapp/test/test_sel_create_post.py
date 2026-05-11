@@ -2,7 +2,7 @@ import unittest
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from pages.CreatePostPage import CreatePostPage
+from blogapp.test.pages.CreatePostPage import CreatePostPage
 
 class TestCreatePost(unittest.TestCase):
     def setUp(self):
@@ -12,7 +12,7 @@ class TestCreatePost(unittest.TestCase):
         
         self.driver.get(f"{self.base_url}/login")
         self.driver.find_element(By.NAME, "username").send_keys("admin")
-        self.driver.find_element(By.NAME, "password").send_keys("123456")
+        self.driver.find_element(By.NAME, "password").send_keys("admin123")
         self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
         
         time.sleep(2) 
