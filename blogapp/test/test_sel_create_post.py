@@ -9,8 +9,14 @@ from blogapp.test.pages.CreatePostPage import CreatePostPage
 
 class TestCreatePost(unittest.TestCase):
     def setUp(self):
-        self.driver = webdriver.Chrome()
-        self.driver.maximize_window()
+        from selenium.webdriver.chrome.options import Options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--window-size=1920,1080")
+        
+        self.driver = webdriver.Chrome(options=chrome_options)
         self.base_url = "http://127.0.0.1:5000"
         
         self.driver.get(f"{self.base_url}/login")

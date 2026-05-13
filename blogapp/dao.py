@@ -17,9 +17,9 @@ def get_users(id = None):
 
 
 def get_posts(kw=None, id=None, page=None):
-    query = Post.query
+    query = Post.query.order_by(Post.created_date.desc())
     if id:
-        return query.get(id)
+        return Post.query.get(id)
     if kw:
         query = query.filter(Post.title.contains(kw))
     if page:

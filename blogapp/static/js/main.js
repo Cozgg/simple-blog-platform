@@ -25,7 +25,7 @@ function showConfirmDialog(title, message, callback) {
 
     const confirmModal = new bootstrap.Modal(modalEl);
 
-    btnYes.onclick = function() {
+    btnYes.onclick = function () {
         callback();
         confirmModal.hide();
     };
@@ -33,26 +33,95 @@ function showConfirmDialog(title, message, callback) {
     confirmModal.show();
 }
 
-function deletePost(postId, isConfirmed=false){
-    fetch(`/api/posts/${postId}?confirmed=${isConfirmed}`,{
+function deletePost(postId, isConfirmed = false) {
+    fetch(`/api/posts/${postId}?confirmed=${isConfirmed}`, {
         method: 'delete',
         headers: {
             "Content-Type": "application/json"
         }
-    }).then(res => res.json()).then(data =>{
-        if(data.status === 204){
+    }).then(res => res.json()).then(data => {
+        if (data.status === 204) {
             showToast(data.msg, "success");
+            const postEl = document.getElementById(`post-${postId}`);
+            if (postEl) postEl.remove();
         }
         else if (data.err_msg === 'Bài viết có hơn 10 bình luận, cần xác nhận xóa') {
             showConfirmDialog(
                 "Xác nhận xóa bài",
                 "Bài viết này có nhiều bình luận. Bạn vẫn chắc chắn muốn xóa?",
-                function() {
+                function () {
                     deletePost(postId, true);
                 }
             );
-        }else{
+        } else {
             showToast(data.err_msg, "danger");
         }
     }).catch(error => console.error('Error:', error));
+}
+
+function submitPost(e) {
+    e.preventDefault();
+    const form = document.getElementById('createPostForm');
+    const formData = new FormData(form);
+
+    const errorDiv = document.getElementById('post-error');
+    const successDiv = document.getElementById('post-success');
+
+    if (errorDiv) errorDiv.classList.add('d-none');
+    if (successDiv) successDiv.classList.add('d-none');
+
+    fetch('/api/posts', {
+        method: 'POST',
+        body: formData
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 200 || data.status === 201) {
+                if (successDiv) {
+                    successDiv.textContent = data.msg || 'Tạo bài viết thành công';
+                    successDiv.classList.remove('d-none');
+                } else {
+                    showToast(data.msg || 'Tạo bài viết thành công', 'success');
+                }
+                form.reset();
+
+                const modalEl = document.getElementById('createPostModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+
+                if (window.location.pathname === '/') {
+                    fetch('/')
+                        .then(res => res.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newContainer = doc.getElementById('post-list-container');
+                            const oldContainer = document.getElementById('post-list-container');
+                            if (newContainer && oldContainer) {
+                                oldContainer.innerHTML = newContainer.innerHTML;
+                            }
+                        });
+                } else {
+                    setTimeout(() => window.location.href = '/', 1000);
+                }
+
+            } else {
+                if (errorDiv) {
+                    errorDiv.textContent = data.err_msg || 'Có lỗi xảy ra';
+                    errorDiv.classList.remove('d-none');
+                } else {
+                    showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
+                }
+            }
+        })
+        .catch(error => {
+            if (errorDiv) {
+                errorDiv.textContent = 'Lỗi kết nối: ' + error.message;
+                errorDiv.classList.remove('d-none');
+            } else {
+                showToast('Lỗi kết nối: ' + error.message, 'danger');
+            }
+        });
 }

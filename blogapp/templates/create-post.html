@@ -9,7 +9,10 @@
 <div class="alert alert-danger">{{ err_msg }}</div>
 {% endif %}
 
-<form method="post" action="/create-post" enctype="multipart/form-data">
+<div class="alert alert-danger d-none" id="post-error"></div>
+<div class="alert alert-success d-none" id="post-success"></div>
+
+<form id="createPostForm" onsubmit="submitPost(event)" enctype="multipart/form-data">
     <div class="form-floating mb-3 mt-3">
         <input type="text" class="form-control" id="title" placeholder="Tiêu đề bài viết" name="title" required minlength="10" maxlength="200"/>
         <label for="title">Tiêu đề bài viết (10-200 ký tự)</label>

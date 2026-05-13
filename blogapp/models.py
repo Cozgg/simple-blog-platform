@@ -5,6 +5,8 @@ from flask_login import UserMixin
 from sqlalchemy import Column, String, Enum, DateTime, Integer, Boolean, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from blogapp import db, app
+import cloudinary.uploader
+
 
 
 class UserRole(enum.Enum):

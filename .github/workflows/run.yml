@@ -23,4 +23,10 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Run tests
-      run: PYTHONPATH=blogapp pytest blogapp
+      env:
+        DATABASE_URL: sqlite:///blog.db
+      run: |
+        PYTHONPATH=. python blogapp/seed.py
+        PYTHONPATH=. python blogapp/index.py &
+        sleep 5
+        PYTHONPATH=. pytest blogapp
