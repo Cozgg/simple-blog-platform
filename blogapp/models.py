@@ -28,7 +28,6 @@ class User(BaseModel, UserMixin):
     user_role = Column(Enum(UserRole), default=UserRole.USER)
     email = Column(String(100), nullable=False)
 
-    # Thiết lập mối quan hệ
     posts = relationship('Post', backref='author', lazy=True)
     comments = relationship('Comment', backref='user', lazy=True)
 

@@ -21,4 +21,5 @@ class CreatePostPage(BasePage):
         self.typing(*self.CONTENT_INPUT, content)
         if image_path:
             self.typing(*self.IMAGE_INPUT, image_path)
-        self.click(*self.SUBMIT_BUTTON)
+        submit_element = self.find(*self.SUBMIT_BUTTON)
+        self.driver.execute_script("arguments[0].click();", submit_element)

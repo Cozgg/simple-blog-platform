@@ -6,13 +6,10 @@
 <h1 class="text-success text-center mt-2">TẠO BÀI VIẾT MỚI</h1>
 
 {% if err_msg %}
-<div class="alert alert-danger">{{ err_msg }}</div>
+<div class="alert alert-danger" id="post-error">{{ err_msg }}</div>
 {% endif %}
 
-<div class="alert alert-danger d-none" id="post-error"></div>
-<div class="alert alert-success d-none" id="post-success"></div>
-
-<form id="createPostForm" onsubmit="submitPost(event)" enctype="multipart/form-data">
+<form method="post" action="/create-post" enctype="multipart/form-data">
     <div class="form-floating mb-3 mt-3">
         <input type="text" class="form-control" id="title" placeholder="Tiêu đề bài viết" name="title" required minlength="10" maxlength="200"/>
         <label for="title">Tiêu đề bài viết (10-200 ký tự)</label>

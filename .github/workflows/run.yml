@@ -22,11 +22,16 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser chromium-chromedriver
+
     - name: Run tests
       env:
         DATABASE_URL: sqlite:///blog.db
+        CHROME_DRIVER_PATH: /usr/bin/chromedriver
       run: |
-        PYTHONPATH=. python blogapp/seed.py
         PYTHONPATH=. python blogapp/index.py &
         sleep 5
         PYTHONPATH=. pytest blogapp
