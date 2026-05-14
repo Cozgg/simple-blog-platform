@@ -34,20 +34,17 @@ class TestCommentPost:
         post_page.enter_comment(test_comment)
         post_page.submit_comment()
 
-        # Đợi và chụp toast notification
         try:
             wait = WebDriverWait(driver, 5)
-            toast = wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
-            time.sleep(0.5)  # Đợi toast hiển thị hoàn toàn
+            wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
+            time.sleep(0.5)
             driver.save_screenshot("ActualResult/comment_success_msg.png")
         except:
             print("Toast không hiển thị hoặc đã biến mất")
             driver.save_screenshot("ActualResult/comment_success_msg.png")
 
-        # Đợi page reload (sau 3 giây theo code JS)
         time.sleep(3.5)
 
-        # Scroll xuống để thấy bình luận mới
         driver.execute_script("window.scrollBy(0, 500);")
         time.sleep(1)
         driver.save_screenshot("ActualResult/comment_success.png")
@@ -109,7 +106,7 @@ class TestCommentPost:
 
         try:
             wait = WebDriverWait(driver, 5)
-            toast = wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
+            wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
             time.sleep(0.5)
             driver.save_screenshot("ActualResult/spam_check_msg.png")
         except:
@@ -143,7 +140,7 @@ class TestCommentPost:
 
         try:
             wait = WebDriverWait(driver, 5)
-            toast = wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
+            wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
             time.sleep(0.5)
             driver.execute_script("window.scrollBy(0, 500);")
             time.sleep(0.5)
