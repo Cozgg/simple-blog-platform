@@ -26,6 +26,8 @@ def test_tc1_create_post_success(driver):
 
     assert test_title in driver.page_source
 
+    driver.save_screenshot('test_create_post_success.png')
+
     with app.app_context():
         post_in_db = Post.query.filter_by(title=test_title).first()
         if post_in_db:
@@ -47,3 +49,5 @@ def test_tc2_create_post_fail_title_too_short(driver):
 
     error_msg = home_page.wait_for_error_message()
     assert "Tiêu đề phải từ 10 đến 200 ký tự" in error_msg
+
+    driver.save_screenshot('test_create_post_fail.png')
