@@ -1,5 +1,7 @@
 import pytest
 from flask import Flask
+from selenium.webdriver.chrome.service import Service
+from selenium import webdriver
 
 from blogapp import db
 from blogapp.index import register_routers
@@ -36,3 +38,10 @@ def test_client(test_app):
 def test_session(test_app):
     yield db.session
     db.session.rollback()
+
+@pytest.fixture
+def driver():
+    service = Service(executable_path='../../.venv/chromedriver.exe')
+    driver = webdriver.Chrome(service=service)
+    yield driver
+    driver.quit()
