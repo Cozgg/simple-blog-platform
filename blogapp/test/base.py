@@ -1,7 +1,7 @@
 import pytest
 from flask import Flask
 
-from blogapp import db
+from blogapp import db, login
 from blogapp.index import register_routers
 
 
@@ -12,6 +12,7 @@ def create_app():
     app.config['TESTING'] = True
     app.secret_key = 'afhfejsdfsdfHJBhj7'
     db.init_app(app)
+    login.init_app(app)
 
     register_routers(app=app)
 

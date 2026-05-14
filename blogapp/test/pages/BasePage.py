@@ -16,4 +16,7 @@ class BasePage:
 
     def typing(self, by, value, text):
         e = self.find(by, value)
-        e.send_keys(text)
+        e.clear()
+        self.driver.execute_script("arguments[0].value = arguments[1];", e, text)
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", e)
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", e)

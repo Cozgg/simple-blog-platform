@@ -6,7 +6,7 @@
 <h1 class="text-success text-center mt-2">TẠO BÀI VIẾT MỚI</h1>
 
 {% if err_msg %}
-<div class="alert alert-danger">{{ err_msg }}</div>
+<div class="alert alert-danger" id="post-error">{{ err_msg }}</div>
 {% endif %}
 
 <form method="post" action="/create-post" enctype="multipart/form-data">

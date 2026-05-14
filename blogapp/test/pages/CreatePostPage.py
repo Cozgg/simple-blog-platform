@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
-from .BasePage import BasePage
+
+from blogapp.test.pages.BasePage import BasePage
+
 
 class CreatePostPage(BasePage):
     TITLE_INPUT = (By.ID, "title")
@@ -19,4 +21,5 @@ class CreatePostPage(BasePage):
         self.typing(*self.CONTENT_INPUT, content)
         if image_path:
             self.typing(*self.IMAGE_INPUT, image_path)
-        self.click(*self.SUBMIT_BUTTON)
+        submit_element = self.find(*self.SUBMIT_BUTTON)
+        self.driver.execute_script("arguments[0].click();", submit_element)

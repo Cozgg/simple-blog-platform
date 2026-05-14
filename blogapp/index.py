@@ -24,6 +24,7 @@ def register_routers(app):
     def add_comment():
         content = request.json.get('content')
         post_id = request.json.get('post_id')
+        parent_id = request.json.get('parent_id')
 
         if len(content) < 5:
             return jsonify({
@@ -32,7 +33,7 @@ def register_routers(app):
             })
 
         try:
-            dao.save_comment(content=content, post_id=post_id, user_id=current_user.id)
+            dao.save_comment(content=content, post_id=post_id, user_id=current_user.id, parent_id=parent_id)
             return jsonify({
                 "status": 201,
                 "msg": "Đã đăng tải thành công bình luận",
@@ -121,13 +122,6 @@ def register_routers(app):
                 
         return render_template('register.html')
 
-    @app.route('/create-post', methods=['GET', 'POST'])
-    @login_required
-    def create_post_view():
-        if request.method == 'POST':
-            pass
-        return render_template('create-post.html')
-
     @app.route('/api/posts', methods=['POST'])
     @custom_login_required(UserRole.USER)
     def create_post_api():
@@ -136,32 +130,29 @@ def register_routers(app):
             content = request.form.get('content', '').strip()
             image = request.files.get('image')
 
-            if not title or len(title) < 10 or len(title) > 200:
-                return jsonify({'status': 400, 'err_msg': 'Tiêu đề phải từ 10 đến 200 ký tự'})
+            if image and not hasattr(image, 'filename') or (image and not image.filename):
+                image = None
+            elif image:
+                image.seek(0, 2)
+                if image.tell() == 0:
+                    image = None
+                image.seek(0)
 
-            if not content or len(content) < 50 or len(content) > 5000:
-                return jsonify({'status': 400, 'err_msg': 'Nội dung phải từ 50 đến 5000 ký tự'})
+            dao.add_post(title=title, content=content, user_id=current_user.id, image=image)
 
-            success, msg = dao.add_post(
-                title=title,
-                content=content,
-                user_id=current_user.id,
-                image=image
-            )
+            return jsonify({'status': 200, 'msg': 'Đăng bài viết thành công'})
 
-            if success:
-                return jsonify({'status': 200, 'msg': msg})
-
-            return jsonify({'status': 400, 'err_msg': msg})
-
-        except Exception as e:
-            return jsonify({'status': 500, 'err_msg': str(e)})
+        except ValueError as ex:
+            return jsonify({'status': 400, 'err_msg': str(ex)})
+        except Exception as ex:
+            return jsonify({'status': 500, 'err_msg': str(ex)})
 
     @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
     @login_required
     def delete_posts(post_id):
         try:
-            is_firmed = request.args.get('confirmed')
+            is_firmed_str = request.args.get('confirmed', 'false').lower()
+            is_firmed = (is_firmed_str == 'true')
             dao.delete_post(post_id=post_id, current_user=current_user, is_confirmed=is_firmed)
             return jsonify({
                 'status': 204,
