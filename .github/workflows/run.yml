@@ -27,6 +27,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y chromium-browser chromium-chromedriver
 
+    - name: Initialize database
+      env:
+        DATABASE_URL: sqlite:///blog.db
+      run: |
+        PYTHONPATH=. python -c "from blogapp import app, db; app.app_context().push(); db.create_all()"
+
     - name: Run tests
       env:
         DATABASE_URL: sqlite:///blog.db
