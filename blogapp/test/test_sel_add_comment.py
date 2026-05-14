@@ -2,32 +2,22 @@ import time
 from blogapp.test.base import driver
 from selenium.webdriver.common.by import By
 from blogapp.test.pages.PostDetailPage import PostDetailPage
+from blogapp.test.pages.LoginPage import LoginPage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
 class TestCommentPost:
+    def test_add_comment_success(self, driver):
+        post_id = 1
 
-    def _setup_and_login(self, driver, post_id, username = "canhhuynh", password = "123456"):
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
         post_page = PostDetailPage(driver)
-        post_page.open_page(post_id=post_id)
-        time.sleep(2)
-
-        post_page.click_login_text()
-        time.sleep(1)
-
-        driver.find_element(By.NAME, "username").send_keys(username)
-        driver.find_element(By.NAME, "password").send_keys(password)
-        driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
-        time.sleep(2)
-
         post_page.open_page(post_id)
         time.sleep(2)
-        return post_page
-
-    def test_tc1_add_comment_success(self, driver):
-        post_id = 1
-        post_page = self._setup_and_login(driver, post_id)
 
         initial_count = post_page.get_comment_count()
         test_comment = "Test5"
@@ -51,12 +41,20 @@ class TestCommentPost:
 
         new_count = post_page.get_comment_count()
 
-        assert new_count == initial_count + 1, "Số đếm bình luận không tăng lên!"
-        assert test_comment in driver.page_source, "Không tìm thấy nội dung bình luận sau khi submit!"
+        assert new_count == initial_count + 1
+        assert test_comment in driver.page_source
 
-    def test_tc2_add_reply_success(self, driver):
+    def test_add_reply_success(self, driver):
         post_id = 1
-        post_page = self._setup_and_login(driver, post_id)
+
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
 
         post_page.click_reply_button()
         time.sleep(1)
@@ -70,7 +68,7 @@ class TestCommentPost:
 
         try:
             wait = WebDriverWait(driver, 5)
-            toast = wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
+            wait.until(EC.visibility_of_element_located((By.ID, "liveToast")))
             time.sleep(0.5)
             driver.save_screenshot("ActualResult/reply_comment_success_msg.png")
         except:
@@ -85,9 +83,17 @@ class TestCommentPost:
         assert reply_content in driver.page_source
         driver.save_screenshot("ActualResult/reply_comment_success.png")
 
-    def test_tc3_spam_comment(self, driver):
+    def test_spam_comment(self, driver):
         post_id = 1
-        post_page = self._setup_and_login(driver, post_id)
+
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
 
         initial_count = post_page.get_comment_count()
 
@@ -121,9 +127,17 @@ class TestCommentPost:
         time.sleep(1)
         assert post_page.get_comment_count() == initial_count + 1
 
-    def test_tc4_full_comment(self, driver):
+    def test_full_comment(self, driver):
         post_id = 1
-        post_page = self._setup_and_login(driver, post_id)
+
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
 
         initial_count = post_page.get_comment_count()
 
@@ -155,9 +169,17 @@ class TestCommentPost:
 
         assert post_page.get_comment_count() == initial_count + 2
 
-    def test_tc5_comment_lester_than_5_character(self, driver):
+    def test_comment_lester_than_5_character(self, driver):
         post_id = 3
-        post_page = self._setup_and_login(driver, post_id)
+
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
 
         initial_count = post_page.get_comment_count()
 
@@ -167,3 +189,87 @@ class TestCommentPost:
         time.sleep(2)
         driver.save_screenshot("ActualResult/comment_chars_invalid.png")
         assert initial_count == post_page.get_comment_count()
+
+    def test_reply_comment_lester_than_5_character(self, driver):
+        post_id = 3
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
+
+        initial_count = post_page.get_comment_count()
+
+        post_page.click_reply_button()
+        time.sleep(1)
+
+        driver.execute_script("window.scrollBy(0, 500);")
+        time.sleep(0.5)
+
+        short_reply_comment = "Test"
+        post_page.enter_reply_text(short_reply_comment)
+        post_page.submit_first_reply()
+
+        time.sleep(2)
+        driver.save_screenshot("ActualResult/reply_comment_chars_invalid.png")
+
+        assert initial_count == post_page.get_comment_count()
+
+    def test_comment_null_post(self, driver):
+        post_id = 9999
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
+
+        initial_count = post_page.get_comment_count()
+
+        post_page.enter_comment("Test comment null post")
+        post_page.submit_comment()
+
+        time.sleep(2)
+        driver.save_screenshot("ActualResult/comment_null_post.png")
+
+        assert initial_count == post_page.get_comment_count()
+
+    def test_comment_null_post_lester_than_5_character(self, driver):
+        post_id = 9999
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("canhhuynh", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
+
+        initial_count = post_page.get_comment_count()
+
+        post_page.enter_comment("Test")
+        post_page.submit_comment()
+
+        time.sleep(2)
+        driver.save_screenshot("ActualResult/comment_null_post.png")
+
+        assert initial_count == post_page.get_comment_count()
+
+    def test_comment_without_login(self, driver):
+        post_id = 3
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
+        driver.execute_script("window.scrollBy(0, 500);")
+        driver.save_screenshot("ActualResult/before_redirect_to_login.png")
+        time.sleep(1)
+        assert "Vui lòng" in driver.page_source and "đăng nhập" in driver.page_source and "tham gia bình luận" in driver.page_source
+        post_page.click_login_text()
+        time.sleep(2)
+        assert "/login" in driver.current_url
+        driver.save_screenshot("ActualResult/redirect_to_login.png")

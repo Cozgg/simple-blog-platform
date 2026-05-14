@@ -1,6 +1,10 @@
 function submitComment(e) {
     e.preventDefault();
     const content = document.getElementById('comment-content').value;
+    if(content.length < 5){
+        showToast('Bình luận phải có ít nhất 5 ký tự', 'warning');
+        return;
+    }
 
     fetch('/api/comments', {
         method: 'POST',
@@ -45,7 +49,7 @@ function deleteReply(replyId) {
             method: 'DELETE'
         }).then(res => res.json()).then(data => {
             if (data.status === 204) {
-                showToast(data.msg || 'Đã xóa phản hồi', 'success');
+                showToast('Đã xóa phản hồi', 'success');
                 document.querySelector(`[data-reply-id="${replyId}"]`).remove();
             } else {
                 showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
