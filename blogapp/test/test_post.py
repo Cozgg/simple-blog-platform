@@ -74,18 +74,16 @@ def test_post_limit(test_session, setup_user):
     success1, _ = dao.add_post(title_duplicate, content_valid, user_id)
     assert success1 is True
 
-    success2, msg2 = dao.add_post(title_duplicate, content_valid, user_id)
-    assert success2 is False
-    assert "đã đăng bài với tiêu đề này" in msg2
+    with pytest.raises(ValueError, match="đã đăng bài với tiêu đề này"):
+        dao.add_post(title_duplicate, content_valid, user_id)
 
     for i in range(1, 10):
         title = f"Tiêu đề không trùng lặp số {i} hợp lệ"
         success, _ = dao.add_post(title, content_valid, user_id)
         assert success is True
 
-    success_11, msg_11 = dao.add_post("Tiêu đề bài thứ 11", content_valid, user_id)
-    assert success_11 is False
-    assert "giới hạn 10 bài" in msg_11
+    with pytest.raises(ValueError, match="giới hạn 10 bài"):
+        dao.add_post("Tiêu đề bài thứ 11", content_valid, user_id)
 
 
 @patch('cloudinary.uploader.upload')
@@ -97,9 +95,8 @@ def test_add_post_with_image(mock_upload, test_session, setup_user):
 @patch('blogapp.dao.db.session.commit')
 def test_add_post_exception(mock_commit, test_session, setup_user):
     mock_commit.side_effect = Exception("Lỗi Database")
-    success, msg = dao.add_post("Tiêu đề gây lỗi hệ thống", "Nội dung để test hệ thống keke, 12345678900---63142.", setup_user.id)
-    assert success is False
-    assert "Lỗi Database" in msg
+    with pytest.raises(Exception, match="Lỗi hệ thống: Lỗi Database"):
+        dao.add_post("Tiêu đề gây lỗi hệ thống", "Nội dung để test hệ thống keke, 12345678900---63142.", setup_user.id)
 
 def test_delete_pinned_post(sample_post):
     p = sample_post[0]
