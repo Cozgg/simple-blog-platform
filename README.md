@@ -5,7 +5,7 @@ Python Flask MySQL Selenium Cloudinary
 ## Tóm tắt kết quả kiểm thử
 | Số lượng unit test | Số lượng testcase | Tỉ lệ bao phủ mã nguồn (dao) |
 |-------------------|-------------------|-----------------------------|
-| 60/60 | 100% | 85% |
+| 60/60 (Unit + API) | 17/17 (Selenium UI) | 85% |
 
 ## Giới thiệu
 Simple Blog Platform là ứng dụng web được phát triển bằng Flask, giúp quản lý và đăng tải bài viết, với tính năng xác thực người dùng, quản lý bài viết, và tích hợp Cloudinary để lưu trữ hình ảnh.
