@@ -36,7 +36,8 @@ jobs:
     - name: Run tests
       env:
         DATABASE_URL: sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db
+        PYTHONPATH: .
       run: |
-        PYTHONPATH=. DATABASE_URL=sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db python blogapp/index.py &
+        python blogapp/index.py &
         sleep 5
-        xvfb-run -a PYTHONPATH=. pytest blogapp
+        xvfb-run -a pytest blogapp
