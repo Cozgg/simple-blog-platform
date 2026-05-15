@@ -26,12 +26,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y chromium-browser xvfb
+        sudo rm -f /usr/bin/chromedriver
 
     - name: Initialize database
       env:
         DATABASE_URL: sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db
       run: |
-        PYTHONPATH=. python -c "from blogapp import app, db; from blogapp.models import User, UserRole; app.app_context().push(); db.create_all(); u = User(name='Ngọc Sơn', username='ngocson', password='e10adc3949ba59abbe56e057f20f883e', email='ngocson@example.com', user_role=UserRole.USER); db.session.add(u); db.session.commit()"
+        PYTHONPATH=. python -c "from blogapp import app, db; app.app_context().push(); db.create_all()"
 
     - name: Run tests
       env:

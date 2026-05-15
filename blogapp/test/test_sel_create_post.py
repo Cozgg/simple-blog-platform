@@ -153,7 +153,6 @@ def test_tc6_duplicate_title_same_day(driver):
             db.session.commit()
 
 
-@pytest.mark.skipif(os.environ.get('CI'), reason="Skipping in CI - complex database setup required")
 def test_tc7_daily_limit_exceeded(driver):
     login_page = LoginPage(driver)
     login_page.open_page(BASE_URL + "/login")
