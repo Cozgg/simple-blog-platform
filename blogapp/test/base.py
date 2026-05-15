@@ -42,8 +42,9 @@ def test_session(test_app):
     db.session.rollback()
 
 @pytest.fixture(scope="session")
-@pytest.mark.skipif(os.environ.get('CI'), reason="Skipping Selenium tests in CI")
 def driver():
+    if os.environ.get('CI'):
+        pytest.skip("Skipping Selenium tests in CI")
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
