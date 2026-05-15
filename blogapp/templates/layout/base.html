@@ -73,13 +73,15 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control border-0 px-0 fs-5 fw-bold" id="title" placeholder="Tiêu đề bài viết" name="title" required minlength="10" maxlength="200" style="box-shadow: none;">
+                <input type="text" class="form-control border-0 px-0 fs-5 fw-bold" id="title" placeholder="Tiêu đề bài viết" name="title" maxlength="200" style="box-shadow: none;">
                 <label for="title" class="px-0 text-muted">Tiêu đề bài viết...</label>
+                <div id="title-error" class="text-danger small mt-1 d-none"></div>
             </div>
 
             <div class="form-floating mb-3">
-                <textarea class="form-control border-0 px-0 fs-5" id="content" placeholder="Bạn đang nghĩ gì?" name="content" style="height: 150px; box-shadow: none;" required minlength="50" maxlength="5000"></textarea>
+                <textarea class="form-control border-0 px-0 fs-5" id="content" placeholder="Bạn đang nghĩ gì?" name="content" style="height: 150px; box-shadow: none;" maxlength="5000"></textarea>
                 <label for="content" class="px-0 text-muted">Bạn đang nghĩ gì?</label>
+                <div id="content-error" class="text-danger small mt-1 d-none"></div>
             </div>
 
             <div class="mb-3 p-3 border rounded d-flex align-items-center justify-content-between">

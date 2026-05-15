@@ -13,7 +13,14 @@
                 {% if post.is_locked %}<span class="badge bg-secondary ms-2">Đã khóa</span>{% endif %}
             </div>
         </header>
-        <section class="fs-5 lh-lg text-secondary">
+        {% if post.image %}
+        <div class="mb-4">
+            <a href="{{ post.image }}" target="_blank">
+                <img src="{{ post.image }}" class="img-fluid rounded shadow-sm" style="max-height: 500px; object-fit: cover; width: 100%;" alt="{{ post.title }}">
+            </a>
+        </div>
+        {% endif %}
+        <section class="fs-5 lh-lg text-secondary" style="word-wrap: break-word; overflow-wrap: break-word;">
             {{ post.content | replace('\n', '<br>') | safe }}
         </section>
     </article>
@@ -39,7 +46,6 @@
             Vui lòng <a href="/login" class="text-dark fw-bold custom-hover">đăng nhập</a> để tham gia bình luận.
         </div>
         {% endif %}
-        <!--Danh sách bình luân-->
         <div class="comment-list" id="comment-list">
             {% for comment in post.comments %}
             {% if not comment.parent_id %}
@@ -78,7 +84,6 @@
                         </button>
                         {% endif %}
                     </div>
-                    <!--From phản hồi-->
                     <div class="reply-form d-none mt-3" data-comment-id="{{ comment.id }}">
                         <textarea class="form-control mb-2 border-0 shadow-sm reply-textarea" rows="2"
                             placeholder="Viết phản hồi của bạn (tối thiểu 5 ký tự)..." minlength="5"></textarea>
@@ -91,7 +96,6 @@
                         <div class="reply-error alert alert-danger mt-2 d-none"></div>
                     </div>
 
-                    <!--danh sách phản hồi-->
                     {% if comment.replies %}
                     <div class="mt-3 ms-4 ps-3 py-2 border-start border-3 border-primary replies-list"
                         style="background-color: #f8f9fa;">
