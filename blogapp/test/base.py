@@ -42,7 +42,10 @@ def test_session(test_app):
 
 @pytest.fixture
 def driver():
-    service = Service(executable_path='../../.venv/chromedriver.exe')
-    driver = webdriver.Chrome(service=service)
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Chrome(options=options)
     yield driver
     driver.quit()

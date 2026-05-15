@@ -37,7 +37,8 @@ def test_tc1_create_post_success(driver):
 
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -95,7 +96,8 @@ def test_tc4_create_post_fail_both_invalid(driver):
 
 def test_tc5_create_post_empty_fields(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -202,7 +204,8 @@ def test_tc7_daily_limit_exceeded(driver):
 
 def test_tc8_create_post_with_image(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
