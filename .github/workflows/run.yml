@@ -25,7 +25,7 @@ jobs:
     - name: Install Chrome and ChromeDriver
       run: |
         sudo apt-get update
-        sudo apt-get install -y chromium-browser
+        sudo apt-get install -y chromium-browser xvfb
 
     - name: Initialize database
       env:
@@ -39,4 +39,4 @@ jobs:
       run: |
         PYTHONPATH=. DATABASE_URL=sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db python blogapp/index.py &
         sleep 5
-        PYTHONPATH=. pytest blogapp
+        xvfb-run -a PYTHONPATH=. pytest blogapp

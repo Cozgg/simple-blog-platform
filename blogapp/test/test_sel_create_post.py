@@ -13,7 +13,8 @@ BASE_URL = "http://127.0.0.1:5000"
 
 def test_tc1_create_post_success(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -56,7 +57,8 @@ def test_tc2_create_post_fail_title_too_short(driver):
 
 def test_tc3_create_post_fail_content_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -75,7 +77,8 @@ def test_tc3_create_post_fail_content_too_short(driver):
 
 def test_tc4_create_post_fail_both_invalid(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -118,7 +121,8 @@ def test_tc5_create_post_empty_fields(driver):
 
 def test_tc6_duplicate_title_same_day(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -151,7 +155,8 @@ def test_tc6_duplicate_title_same_day(driver):
 
 def test_tc7_daily_limit_exceeded(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page(BASE_URL + "/login")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
