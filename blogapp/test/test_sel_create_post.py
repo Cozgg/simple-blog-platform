@@ -6,7 +6,7 @@ from blogapp import app, db
 from blogapp.models import Post, User
 from blogapp.test.pages.LoginPage import LoginPage
 from blogapp.test.pages.HomePage import HomePage
-from blogapp.test.test_base import driver
+from blogapp.test.base import driver
 
 BASE_URL = "http://127.0.0.1:5000"
 
