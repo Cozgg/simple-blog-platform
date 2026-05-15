@@ -78,6 +78,8 @@ def register_routers(app):
     @app.route('/post-detail/<int:post_id>', methods=['GET'])
     def post_detail_view(post_id):
         p = dao.get_posts(id=post_id)
+        if p is None:
+            return redirect(url_for('index_view'))
         return render_template('post-detail.html', post=p)
 
     @app.route('/login', methods=['GET', 'POST'])
