@@ -1,11 +1,10 @@
 function submitComment(e) {
     e.preventDefault();
     const content = document.getElementById('comment-content').value;
-    const errorDiv = document.getElementById('comment-error');
-    const successDiv = document.getElementById('comment-success');
-
-    errorDiv.classList.add('d-none');
-    successDiv.classList.add('d-none');
+    if(content.length < 5){
+        showToast('Bình luận phải có ít nhất 5 ký tự', 'warning');
+        return;
+    }
 
     fetch('/api/comments', {
         method: 'POST',
@@ -16,51 +15,48 @@ function submitComment(e) {
         })
     }).then(res => res.json()).then(data => {
         if (data.status === 201) {
-            successDiv.textContent = data.msg;
-            successDiv.classList.remove('d-none');
+            showToast(data.msg || 'Bình luận thành công!', 'success');
             document.getElementById('comment-content').value = '';
-            setTimeout(() => location.reload(), 1000);
+            setTimeout(() => location.reload(), 3000);
         } else {
-            errorDiv.textContent = data.err_msg || 'Có lỗi xảy ra';
-            errorDiv.classList.remove('d-none');
+            showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
         }
     }).catch(error => {
-        errorDiv.textContent = 'Lỗi kết nối: ' + error.message;
-        errorDiv.classList.remove('d-none');
+        showToast('Lỗi kết nối: ' + error.message, 'danger');
     });
 }
 
 function deleteComment(commentId) {
-    if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return;
-
-    fetch(`/api/comments/${commentId}`, {
-        method: 'DELETE'
-    }).then(res => res.json()).then(data => {
-        if (data.status === 204) {
-            alert(data.msg);
-            document.querySelector(`[data-comment-id="${commentId}"]`).remove();
-        } else {
-            alert(data.err_msg || 'Có lỗi xảy ra');
-        }
-    }).catch(error => {
-        alert('Lỗi kết nối: ' + error.message);
+    showConfirmDialog('Xác nhận xóa', 'Bạn có chắc chắn muốn xóa bình luận này?', function() {
+        fetch(`/api/comments/${commentId}`, {
+            method: 'DELETE'
+        }).then(res => res.json()).then(data => {
+            if (data.status === 204) {
+                showToast(data.msg || 'Đã xóa bình luận', 'success');
+                document.querySelector(`[data-comment-id="${commentId}"]`).remove();
+            } else {
+                showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
+            }
+        }).catch(error => {
+            showToast('Lỗi kết nối: ' + error.message, 'danger');
+        });
     });
 }
 
 function deleteReply(replyId) {
-    if (!confirm('Bạn có chắc chắn muốn xóa phản hồi này?')) return;
-
-    fetch(`/api/comments/${replyId}`, {
-        method: 'DELETE'
-    }).then(res => res.json()).then(data => {
-        if (data.status === 204) {
-            alert(data.msg);
-            document.querySelector(`[data-reply-id="${replyId}"]`).remove();
-        } else {
-            alert(data.err_msg || 'Có lỗi xảy ra');
-        }
-    }).catch(error => {
-        alert('Lỗi kết nối: ' + error.message);
+    showConfirmDialog('Xác nhận xóa', 'Bạn có chắc chắn muốn xóa phản hồi này?', function() {
+        fetch(`/api/comments/${replyId}`, {
+            method: 'DELETE'
+        }).then(res => res.json()).then(data => {
+            if (data.status === 204) {
+                showToast('Đã xóa phản hồi', 'success');
+                document.querySelector(`[data-reply-id="${replyId}"]`).remove();
+            } else {
+                showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
+            }
+        }).catch(error => {
+            showToast('Lỗi kết nối: ' + error.message, 'danger');
+        });
     });
 }
 
@@ -80,11 +76,9 @@ function hideReplyForm(commentId) {
 function submitReply(commentId) {
     const replyForm = document.querySelector(`.reply-form[data-comment-id="${commentId}"]`);
     const content = replyForm.querySelector('.reply-textarea').value;
-    const errorDiv = replyForm.querySelector('.reply-error');
 
     if (content.length < 5) {
-        errorDiv.textContent = 'Phản hồi phải có ít nhất 5 ký tự';
-        errorDiv.classList.remove('d-none');
+        showToast('Phản hồi phải có ít nhất 5 ký tự', 'warning');
         return;
     }
 
@@ -98,15 +92,13 @@ function submitReply(commentId) {
         })
     }).then(res => res.json()).then(data => {
         if (data.status === 201) {
-            errorDiv.classList.add('d-none');
+            showToast(data.msg || 'Đã gửi phản hồi', 'success');
             replyForm.classList.add('d-none');
-            setTimeout(() => location.reload(), 500);
+            setTimeout(() => location.reload(), 3000);
         } else {
-            errorDiv.textContent = data.err_msg || 'Có lỗi xảy ra';
-            errorDiv.classList.remove('d-none');
+            showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
         }
     }).catch(error => {
-        errorDiv.textContent = 'Lỗi kết nối: ' + error.message;
-        errorDiv.classList.remove('d-none');
+        showToast('Lỗi kết nối: ' + error.message, 'danger');
     });
 }
