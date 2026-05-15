@@ -8,6 +8,7 @@ from blogapp.test.pages.LoginPage import LoginPage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+@pytest.mark.skipif(os.environ.get('CI'), reason="Skipping in CI - requires specific posts in database")
 class TestCommentPost:
     def test_add_comment_success(self, driver):
         post_id = 1
