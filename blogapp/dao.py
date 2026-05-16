@@ -16,12 +16,14 @@ def get_users(id = None):
     return query.all()
 
 
-def get_posts(kw=None, id=None, page=None):
+def get_posts(kw=None, id=None, page=None, user_id=None):
     query = Post.query.order_by(Post.created_date.desc())
     if id:
         return Post.query.get(id)
     if kw:
         query = query.filter(Post.title.contains(kw))
+    if user_id:
+        query = query.filter(Post.user_id == user_id)
     if page:
         start = (page - 1) * app.config['PAGE_SIZE']
         query = query.slice(start, start + app.config['PAGE_SIZE'])

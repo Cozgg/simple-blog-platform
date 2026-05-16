@@ -4,7 +4,7 @@ from flask_login import current_user, logout_user, login_user, login_required
 from blogapp.decorators import login_required as custom_login_required
 from blogapp import app, dao, login
 from flask import render_template, jsonify, request, redirect
-from blogapp.models import UserRole
+from blogapp.models import UserRole, Post
 
 
 @login.user_loader
@@ -78,6 +78,8 @@ def register_routers(app):
     @app.route('/post-detail/<int:post_id>', methods=['GET'])
     def post_detail_view(post_id):
         p = dao.get_posts(id=post_id)
+        if p is None:
+            return redirect(url_for('index_view'))
         return render_template('post-detail.html', post=p)
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -100,6 +102,15 @@ def register_routers(app):
     def logout_process():
         logout_user()
         return redirect('/login')
+
+    @app.route('/profile')
+    @login_required
+    def profile_view():
+        page = int(request.args.get('page', 1))
+        posts = dao.get_posts(user_id=current_user.id, page=page)
+        total_posts = Post.query.filter_by(user_id=current_user.id).count()
+        pages = math.ceil(total_posts / app.config['PAGE_SIZE'])
+        return render_template('profile.html', user=current_user, posts=posts, pages=pages)
 
     @app.route('/register', methods=['GET', 'POST'])
     def register_view():
