@@ -85,43 +85,42 @@ def get_user_by_id(id):
     return User.query.get(id)
 
 def add_post(title, content, user_id, image=None):
+    if not title or len(title) < 10 or len(title) > 200:
+        raise ValueError('Tiêu đề phải từ 10 đến 200 ký tự')
+
+    if not content or len(content) < 50 or len(content) > 5000:
+        raise ValueError('Nội dung phải từ 50 đến 5000 ký tự')
+
+    today = date.today()
+
+    post_count_today = Post.query.filter(Post.user_id == user_id,
+        db.func.date(Post.created_date) == today
+    ).count()
+
+    if post_count_today >= 10:
+        raise ValueError("Bạn đã đạt giới hạn 10 bài đăng trong ngày")
+
+    duplicate_title = Post.query.filter(Post.title == title.strip(),
+        Post.user_id == user_id,
+        db.func.date(Post.created_date) == today
+    ).first()
+
+    if duplicate_title:
+        raise ValueError("Bạn đã đăng bài với tiêu đề này trong hôm nay")
+
+    post = Post(title=title.strip(), content=content.strip(), user_id=user_id)
+
+    if image:
+        res = cloudinary.uploader.upload(image)
+        post.image = res.get('secure_url')
+
+    db.session.add(post)
     try:
-        today = date.today()
-
-        post_count_today = Post.query.filter(
-            Post.user_id == user_id,
-            db.func.date(Post.created_date) == today
-        ).count()
-
-        if post_count_today >= 10:
-            return False, "Bạn đã đạt giới hạn 10 bài đăng trong ngày"
-
-        # Khong duoc dang 2 bai trung tieu de trong 1 ngay
-        duplicate_title = Post.query.filter(
-            Post.title == title.strip(),
-            Post.user_id == user_id,
-            db.func.date(Post.created_date) == today
-        ).first()
-
-        if duplicate_title:
-            return False, "Bạn đã đăng bài với tiêu đề này trong hôm nay"
-
-        post = Post(
-            title=title.strip(),
-            content=content.strip(),
-            user_id=user_id
-        )
-
-        if image:
-            res = cloudinary.uploader.upload(image)
-            post.image = res.get('secure_url')
-
-        db.session.add(post)
         db.session.commit()
         return True, "Đăng bài viết thành công"
     except Exception as e:
         db.session.rollback()
-        return False, str(e)
+        raise Exception("Lỗi hệ thống: " + str(e))
 
 def check_post_locked(post_id):
     post = db.session.get(Post, post_id)
