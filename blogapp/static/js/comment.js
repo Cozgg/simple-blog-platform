@@ -34,6 +34,7 @@ function deleteComment(commentId) {
             if (data.status === 204) {
                 showToast(data.msg || 'Đã xóa bình luận', 'success');
                 document.querySelector(`[data-comment-id="${commentId}"]`).remove();
+                setTimeout(() => location.reload(), 1000);
             } else {
                 showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
             }
@@ -51,6 +52,7 @@ function deleteReply(replyId) {
             if (data.status === 204) {
                 showToast('Đã xóa phản hồi', 'success');
                 document.querySelector(`[data-reply-id="${replyId}"]`).remove();
+                setTimeout(() => location.reload(), 1000);
             } else {
                 showToast(data.err_msg || 'Có lỗi xảy ra', 'danger');
             }
