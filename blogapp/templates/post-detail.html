@@ -77,8 +77,7 @@
                             onclick="showReplyForm({{ comment.id }})">Phản hồi
                         </button>
                         {% endif %}
-                        {% if current_user.is_authenticated and not post.is_locked and comment.user_id ==
-                        current_user.id %}
+                        {% if current_user.is_authenticated and not post.is_locked and (comment.user_id == current_user.id or post.user_id == current_user.id) %}
                         <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none custom-hover small"
                             onclick="deleteComment({{ comment.id }})">Xóa
                         </button>
@@ -122,11 +121,9 @@
                                     </div>
                                 </div>
                                 <p class="mb-2 small text-secondary">{{ reply.content }}</p>
-                                {% if current_user.is_authenticated and not post.is_locked and reply.user_id ==
-                                current_user.id %}
-                                <button
-                                    class="btn btn-sm btn-link text-danger p-0 text-decoration-none custom-hover small"
-                                    onclick="deleteReply({{ reply.id }})">Xóa
+                                {% if current_user.is_authenticated and not post.is_locked and (reply.user_id == current_user.id or post.user_id == current_user.id) %}
+                                <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none custom-hover small"
+                                        onclick="deleteReply({{ reply.id }})">Xóa
                                 </button>
                                 {% endif %}
                             </div>
