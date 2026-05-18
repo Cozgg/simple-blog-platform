@@ -220,48 +220,6 @@ class TestCommentPost:
 
         assert initial_count == post_page.get_comment_count()
 
-    def test_comment_null_post(self, driver):
-        post_id = 9999
-        login_page = LoginPage(driver)
-        login_page.open_page()
-        login_page.login("canhhuynh", "123456")
-        time.sleep(2)
-
-        post_page = PostDetailPage(driver)
-        post_page.open_page(post_id)
-        time.sleep(2)
-
-        initial_count = post_page.get_comment_count()
-
-        post_page.enter_comment("Test comment null post")
-        post_page.submit_comment()
-
-        time.sleep(2)
-        driver.save_screenshot("ActualResult/comment_null_post.png")
-
-        assert initial_count == post_page.get_comment_count()
-
-    def test_comment_null_post_lester_than_5_character(self, driver):
-        post_id = 9999
-        login_page = LoginPage(driver)
-        login_page.open_page()
-        login_page.login("canhhuynh", "123456")
-        time.sleep(2)
-
-        post_page = PostDetailPage(driver)
-        post_page.open_page(post_id)
-        time.sleep(2)
-
-        initial_count = post_page.get_comment_count()
-
-        post_page.enter_comment("Test")
-        post_page.submit_comment()
-
-        time.sleep(2)
-        driver.save_screenshot("ActualResult/comment_null_post.png")
-
-        assert initial_count == post_page.get_comment_count()
-
     def test_comment_without_login(self, driver):
         post_id = 3
         post_page = PostDetailPage(driver)

@@ -16,3 +16,9 @@ class LoginPage(BasePage):
         self.typing(*self.USERNAME, username)
         self.typing(*self.PASSWORD, password)
         self.click(*self.BTN)
+
+    def fill_field(self, field_id, value):
+        self.find(By.ID, field_id).send_keys(value)
+
+    def submit(self):
+        self.click(*self.BTN)
