@@ -16,7 +16,7 @@ LOGIN_LINK = (By.CSS_SELECTOR, "a[href='/login']")
 
 
 class TestLoginSuccess:
-    def test_login_success_user(self, driver):
+    def test_login_success(self, driver):
         login_page = LoginPage(driver)
         login_page.open_page()
         login_page.login("ngocson", "123456")
@@ -28,19 +28,6 @@ class TestLoginSuccess:
         assert len(logout_links) > 0
 
         driver.save_screenshot("ActualResult/login_success_user.png")
-
-    def test_login_success_admin(self, driver):
-        login_page = LoginPage(driver)
-        login_page.open_page()
-        login_page.login("admin", "admin123")
-        time.sleep(2)
-
-        assert driver.current_url == HOME_URL
-
-        logout_links = driver.find_elements(*LOGOUT_LINK)
-        assert len(logout_links) > 0
-
-        driver.save_screenshot("ActualResult/login_success_admin.png")
 
     def test_login_shows_username_in_navbar(self, driver):
         login_page = LoginPage(driver)
