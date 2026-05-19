@@ -68,13 +68,13 @@
                     <div class="comment-actions">
                         {% if current_user.is_authenticated and not post.is_locked %}
                         <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none custom-hover small"
-                            onclick="showReplyForm({{ comment.id }})">Phản hồi
+                            onclick="showReplyForm({{ comment.id }})" id="reply-cmt-btn">Phản hồi
                         </button>
                         {% endif %}
                         {% if current_user.is_authenticated and not post.is_locked and comment.user_id ==
                         current_user.id %}
                         <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none custom-hover small"
-                            onclick="deleteComment({{ comment.id }})">Xóa
+                            onclick="deleteComment({{ comment.id }})" id="del-cmt-btn">Xóa
                         </button>
                         {% endif %}
                     </div>

@@ -11,7 +11,7 @@ BASE_URL = "http://127.0.0.1:5000"
 
 def test_tc1_create_post_success(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open(f"{BASE_URL}/")
@@ -37,7 +37,7 @@ def test_tc1_create_post_success(driver):
 
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.login("ngocson", "123456")
 
     assert "logout" in driver.page_source.lower(), "Đăng nhập không thành công, không tìm thấy nút Logout"
 

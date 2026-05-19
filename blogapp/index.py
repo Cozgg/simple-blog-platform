@@ -19,6 +19,12 @@ def register_routers(app):
         return render_template('index.html', posts=posts,
                             pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
 
+    @app.route("/user-posts")
+    def user_posts_view():
+        page = int(request.args.get('page', 1))
+        posts = dao.get_posts(page=page, user_id=current_user.id)
+        return render_template('user-post.html', posts=posts, pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
+
     @app.route('/api/comments', methods=['POST'])
     @login_required
     def add_comment():
@@ -164,6 +170,12 @@ def register_routers(app):
                 'status' : 400,
                 'err_msg': str(e)
             })
+
+@app.context_processor
+def common_attributes():
+    return {
+        "UserRole": UserRole
+    }
 
 if __name__ == '__main__':
     from blogapp import admin

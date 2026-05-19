@@ -113,4 +113,8 @@ def test_count_posts(sample_post):
     actual_post = dao.get_posts()
     assert len(actual_post) == dao.count_posts()
 
+def test_owner_post(sample_post):
+    actual_post = dao.get_posts(user_id=1)
+    assert len(actual_post) == 4
+
 
