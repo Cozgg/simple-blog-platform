@@ -45,7 +45,6 @@ def driver():
     if os.getenv("CI"):
         chrome_options.add_argument("--headless=new")
     # For CI environment (Ubuntu with Chromium)
-    import os
     if os.getenv('CHROME_DRIVER_PATH'):
         from selenium.webdriver.chrome.service import Service
         service = Service(os.getenv('CHROME_DRIVER_PATH'))
