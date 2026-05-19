@@ -1,7 +1,8 @@
 import time
 
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from blogapp.test.pages.BasePage import BasePage
 import time as t
@@ -12,8 +13,8 @@ class PostDetailPage(BasePage):
 
     POST_TITLE = (By.CSS_SELECTOR, "h1.fw-bolder")
     COMMENT_COUNT = (By.ID, "comment-count")
+    WARNING_MODAL = (By.ID, "globalConfirmModal")
     COMMENT_ITEMS = (By.CSS_SELECTOR, ".comment-item")
-    
     COMMENT_TEXTAREA = (By.ID, "comment-content")
     SUBMIT_COMMENT_BTN = (By.CSS_SELECTOR, "#comment-form button[type='submit']")
     COMMENT_SUCCESS_MSG = (By.ID, "comment-success")
@@ -22,14 +23,15 @@ class PostDetailPage(BasePage):
     REPLY_BUTTON = (By.CSS_SELECTOR, "#comment-list > div:nth-child(1) button[onclick*='showReplyForm']")
     REPLY_TEXT = (By.CSS_SELECTOR, "#comment-list > div:nth-child(1) .reply-textarea")
     REPLY_SUBMIT_BTN = (By.CSS_SELECTOR, "#comment-list > div:nth-child(1) button[onclick*='submitReply']")
-    
+    CLOSE_BTN = (By.CLASS_NAME, "btn-close")
+    CONFIRM_DELETE_BTN = (By.ID, "btnConfirmYes")
+    CANCEL_DELETE_BTN = (By.ID, "btnCancel")
     CONFIRM_MODAL = (By.ID, "globalConfirmModal")
     MODAL_CONFIRM_BTN = (By.ID, "btnConfirmYes")
     MODAL_CANCEL_BTN = (By.CSS_SELECTOR, "#globalConfirmModal .btn-secondary")
     MODAL_CLOSE_BTN = (By.CSS_SELECTOR, "#globalConfirmModal .btn-close")
     MODAL_TITLE = (By.ID, "confirmTitle")
     MODAL_BODY = (By.ID, "confirmMessage")
-    
     TOAST_BODY = (By.ID, "toast-message")
 
     def open_page(self, post_id=None):
@@ -73,6 +75,43 @@ class PostDetailPage(BasePage):
 
     def submit_first_reply(self):
         self.click(*self.REPLY_SUBMIT_BTN)
+
+    def click_del_comment_button(self, comment_id):
+        btn = self.find(By.ID, f"del-btn-cmt-{comment_id}")
+        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", btn)
+        time.sleep(0.5)
+        btn.click()
+
+
+    def click_delete_modal(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(self.WARNING_MODAL)
+            )
+            self.driver.find_element(*self.CONFIRM_DELETE_BTN).click()
+            return True
+        except TimeoutException:
+            assert False, "Lỗi: Không hiển thị Modal xóa bình luận"
+
+    def cancel_delete_modal(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(self.WARNING_MODAL)
+            )
+            self.driver.find_element(*self.CANCEL_DELETE_BTN).click()
+            return True
+        except TimeoutException:
+            assert False, "Lỗi: Không hiển thị Modal xóa bình luận"
+
+    def click_close_modal(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(self.WARNING_MODAL)
+            )
+            self.driver.find_element(*self.CLOSE_BTN).click()
+            return True
+        except TimeoutException as e:
+            return False, f"Lỗi: {e}"
 
     def click_delete_first_comment_from_other_user(self):
         delete_btn = WebDriverWait(self.driver, 10).until(

@@ -88,6 +88,7 @@ def seed_user_with_many_posts(test_app):
 @pytest.mark.selenium
 def test_view_other_user_profile(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
     t.sleep(2)
     
@@ -104,12 +105,12 @@ def test_view_other_user_profile(driver):
     user_info = profile_page.get_user_info()
     assert "@canhhuynh" in user_info
     
-    driver.save_screenshot('test_view_other_profile.png')
 
 
 @pytest.mark.selenium
 def test_view_other_user_posts(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
     t.sleep(2)
     
@@ -120,12 +121,12 @@ def test_view_other_user_posts(driver):
     post_titles = profile_page.get_post_titles()
     assert len(post_titles) > 0, "Phải có ít nhất một bài đăng"
     
-    driver.save_screenshot('test_view_other_user_posts.png')
 
 
 @pytest.mark.selenium
 def test_profile_pagination(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
     t.sleep(2)
     
@@ -154,12 +155,12 @@ def test_profile_pagination(driver):
         back_posts = profile_page.get_post_titles()
         assert initial_posts == back_posts, "Phải quay lại trang 1"
     
-    driver.save_screenshot('test_profile_pagination.png')
 
 
 @pytest.mark.selenium
 def test_view_own_profile(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
     
     profile_page = ProfilePage(driver)
@@ -171,4 +172,3 @@ def test_view_own_profile(driver):
     user_info = profile_page.get_user_info()
     assert "@ngocson" in user_info
     
-    driver.save_screenshot('test_view_own_profile.png')
