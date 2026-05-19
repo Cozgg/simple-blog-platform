@@ -79,6 +79,7 @@
                         {% endif %}
                         {% if current_user.is_authenticated and not post.is_locked and (comment.user_id == current_user.id or post.user_id == current_user.id) %}
                         <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none custom-hover small"
+                                id="del-btn-cmt-{{comment.id}}"
                             onclick="deleteComment({{ comment.id }})">Xóa
                         </button>
                         {% endif %}
@@ -123,6 +124,7 @@
                                 <p class="mb-2 small text-secondary">{{ reply.content }}</p>
                                 {% if current_user.is_authenticated and not post.is_locked and (reply.user_id == current_user.id or post.user_id == current_user.id) %}
                                 <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none custom-hover small"
+                                        id="del-btn-cmt-{{reply.id}}"
                                         onclick="deleteReply({{ reply.id }})">Xóa
                                 </button>
                                 {% endif %}
