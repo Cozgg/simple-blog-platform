@@ -41,6 +41,15 @@ def test_session(test_app):
     yield db.session
     db.session.rollback()
 
+
+#
+# @pytest.fixture
+# def driver():
+#     service = Service(executable_path='../../.venv/chromedriver.exe')
+#     driver = webdriver.Chrome(service=service)
+#     yield driver
+#     driver.quit()
+
 @pytest.fixture(scope="session")
 def driver():
     if os.environ.get('CI'):
