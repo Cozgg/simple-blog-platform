@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from blogapp.test.pages.BasePage import BasePage
 
@@ -38,10 +40,6 @@ class PostDetailPage(BasePage):
         element = self.find(*self.COMMENT_TEXTAREA)
         return self.driver.execute_script("return arguments[0].validationMessage;", element)
 
-    def click_reply_button(self, comment_id):
-        locator = (By.CSS_SELECTOR, f".comment-item[data-comment-id='{comment_id}'] button[onclick*='showReplyForm']")
-        self.click(*locator)
-
     def click_delete_comment_button(self, comment_id):
         locator = (By.CSS_SELECTOR, f".comment-item[data-comment-id='{comment_id}'] button[onclick*='deleteComment']")
         self.click(*locator)
@@ -50,9 +48,15 @@ class PostDetailPage(BasePage):
         self.click(*self.LOGIN_TEXT)
 
     def click_reply_button(self):
+        btn = self.find(*self.REPLY_BUTTON)
+        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", btn)
+        time.sleep(0.5)
         self.click(*self.REPLY_BUTTON)
 
     def enter_reply_text(self, text):
+        textarea = self.find(*self.REPLY_TEXT)
+        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", textarea)
+        time.sleep(0.5)
         self.typing(*self.REPLY_TEXT, text)
 
     def submit_first_reply(self):

@@ -6,18 +6,17 @@ from blogapp import app, db
 from blogapp.models import Post, User
 from blogapp.test.pages.LoginPage import LoginPage
 from blogapp.test.pages.HomePage import HomePage
-from blogapp.test.base import driver
+from blogapp.test.test_base import driver
 
-BASE_URL = "http://127.0.0.1:5000"
 
 
 def test_tc1_create_post_success(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
     home_page.open_create_modal()
 
     test_title = f"Tiêu đề bài viết {int(time.time())}"
@@ -26,8 +25,6 @@ def test_tc1_create_post_success(driver):
     home_page.submit_post_ui(test_title, valid_content)
     home_page.wait_for_success_and_refresh(test_title)
     assert test_title in driver.page_source
-
-    driver.save_screenshot('test_tc1_create_post_success.png')
 
     with app.app_context():
         post_in_db = Post.query.filter_by(title=test_title).first()
@@ -38,11 +35,11 @@ def test_tc1_create_post_success(driver):
 
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
     home_page.open_create_modal()
     home_page.submit_post_ui("Ngắn", "Nội dung đủ dài để đăng bài viết okeokeokeokeokeoke")
 
@@ -52,16 +49,15 @@ def test_tc2_create_post_fail_title_too_short(driver):
     assert 'title' in errors
     assert "Tiêu đề phải từ 10 đến 200 ký tự" in errors['title']
 
-    driver.save_screenshot('test_tc2_title_too_short.png')
 
 
 def test_tc3_create_post_fail_content_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
     home_page.submit_post_ui("Tiêu đề đủ dài để đăng bài viết okeokeokeoke", "Ko đủ 50 ký tự")
@@ -72,16 +68,15 @@ def test_tc3_create_post_fail_content_too_short(driver):
     assert 'content' in errors
     assert "Nội dung phải từ 50 đến 5000 ký tự" in errors['content']
 
-    driver.save_screenshot('test_tc3_content_too_short.png')
 
 
 def test_tc4_create_post_fail_both_invalid(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
     home_page.submit_post_ui("Ngắn", "Ngắn")
@@ -94,16 +89,15 @@ def test_tc4_create_post_fail_both_invalid(driver):
     assert "Tiêu đề phải từ 10 đến 200 ký tự" in errors['title']
     assert "Nội dung phải từ 50 đến 5000 ký tự" in errors['content']
 
-    driver.save_screenshot('test_tc4_both_invalid.png')
 
 
 def test_tc5_create_post_empty_fields(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
     home_page.submit_post_ui("", "")
@@ -116,16 +110,15 @@ def test_tc5_create_post_empty_fields(driver):
     assert "Tiêu đề phải từ 10 đến 200 ký tự" in errors['title']
     assert "Nội dung phải từ 50 đến 5000 ký tự" in errors['content']
 
-    driver.save_screenshot('test_tc5_empty_fields.png')
 
 
 def test_tc6_duplicate_title_same_day(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     test_title = f"Tiêu đề trùng lặp {int(time.time())}"
     valid_content = "Nội dung bài viết hợp lệ dài trên 50 ký tự để được đăng okeokeokeokeokeokeokeoke."
@@ -144,7 +137,6 @@ def test_tc6_duplicate_title_same_day(driver):
     assert ("đăng bài với tiêu đề này" in error_msg or "trùng" in error_msg.lower() or
             "giới hạn 10 bài" in error_msg or "đạt giới hạn" in error_msg.lower())
 
-    driver.save_screenshot('test_tc6_duplicate_title.png')
 
     with app.app_context():
         post_in_db = Post.query.filter_by(title=test_title).first()
@@ -155,11 +147,11 @@ def test_tc6_duplicate_title_same_day(driver):
 
 def test_tc7_daily_limit_exceeded(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
     with app.app_context():
         today = date.today()
         current_count = Post.query.filter(
@@ -193,7 +185,6 @@ def test_tc7_daily_limit_exceeded(driver):
     assert error_msg is not None
     assert "giới hạn 10 bài" in error_msg or "đạt giới hạn" in error_msg.lower()
 
-    driver.save_screenshot('test_tc7_daily_limit.png')
 
     with app.app_context():
         today = date.today()
@@ -209,11 +200,11 @@ def test_tc7_daily_limit_exceeded(driver):
 
 def test_tc8_create_post_with_image(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
 
@@ -230,7 +221,6 @@ def test_tc8_create_post_with_image(driver):
 
     assert test_title in driver.page_source
 
-    driver.save_screenshot('test_tc2_create_post_with_image.png')
 
     with app.app_context():
         post_in_db = Post.query.filter_by(title=test_title).first()
