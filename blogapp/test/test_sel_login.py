@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from blogapp.test.base import driver
+from blogapp.test.test_base import driver
 from blogapp.test.pages.LoginPage import LoginPage
 
 BASE_URL = "http://127.0.0.1:5000"
@@ -15,6 +15,7 @@ LOGOUT_LINK = (By.CSS_SELECTOR, "a[href='/logout']")
 LOGIN_LINK = (By.CSS_SELECTOR, "a[href='/login']")
 
 
+@pytest.mark.selenium
 class TestLoginSuccess:
     def test_login_success(self, driver):
         login_page = LoginPage(driver)
@@ -50,7 +51,7 @@ class TestLoginSuccess:
         assert "/login" in driver.current_url
         driver.save_screenshot("ActualResult/login_logout_redirect.png")
 
-
+@pytest.mark.selenium
 class TestLoginFailure:
     def test_wrong_password(self, driver):
         login_page = LoginPage(driver)
@@ -85,7 +86,7 @@ class TestLoginFailure:
 
         driver.save_screenshot("ActualResult/login_both_wrong.png")
 
-
+@pytest.mark.selenium
 class TestLoginValidation:
     def test_empty_username_prevents_submit(self, driver):
         login_page = LoginPage(driver)

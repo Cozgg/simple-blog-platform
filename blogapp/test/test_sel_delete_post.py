@@ -101,137 +101,138 @@ def post_factory():
 
         db.session.commit()
 
+@pytest.mark.selenium
+class TestSelDeletePost:
+    def test_delete_post_success(driver, post_factory):
+        post = post_factory()
+        test_title = str(post.title)
 
-def test_delete_post_success(driver, post_factory):
-    post = post_factory()
-    test_title = str(post.title)
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="admin", password="admin123")
 
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="admin", password="admin123")
+        home = HomePage(driver=driver)
+        home.delete_post()
+        msg = home.get_toast_message()
+        assert msg == "Xóa thành công"
+        current_titles = home.get_all_post_titles()
+        assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
 
-    home = HomePage(driver=driver)
-    home.delete_post()
-    msg = home.get_toast_message()
-    assert msg == "Xóa thành công"
-    current_titles = home.get_all_post_titles()
-    assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
+    def test_admin_delete_post_user_success(driver, post_factory):
+        post = post_factory(username="canhhuynh")
+        test_title = str(post.title)
 
-def test_admin_delete_post_user_success(driver, post_factory):
-    post = post_factory(username="canhhuynh")
-    test_title = str(post.title)
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="admin", password="admin123")
 
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="admin", password="admin123")
+        home = HomePage(driver=driver)
+        home.wait_for_home_page()
+        home.delete_post()
+        msg = home.get_toast_message()
+        assert msg == "Xóa thành công"
+        current_titles = home.get_all_post_titles()
+        assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
 
-    home = HomePage(driver=driver)
-    home.wait_for_home_page()
-    home.delete_post()
-    msg = home.get_toast_message()
-    assert msg == "Xóa thành công"
-    current_titles = home.get_all_post_titles()
-    assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
+    def test_modal_confirmed_post_with_10_comments(driver, post_factory):
+        post = post_factory(username="canhhuynh", comments_count=11)
 
-def test_modal_confirmed_post_with_10_comments(driver, post_factory):
-    post = post_factory(username="canhhuynh", comments_count=11)
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="canhhuynh", password="123456")
 
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="canhhuynh", password="123456")
+        home = HomePage(driver=driver)
+        home.delete_post()
 
-    home = HomePage(driver=driver)
-    home.delete_post()
+        is_modal_open = home.accept_delete_modal()
 
-    is_modal_open = home.accept_delete_modal()
+        assert is_modal_open is True
 
-    assert is_modal_open is True
+    def test_delete_post_with_10_comments_success(driver, post_factory):
+        post = post_factory(username="canhhuynh", comments_count=11)
+        test_title = str(post.title)
 
-def test_delete_post_with_10_comments_success(driver, post_factory):
-    post = post_factory(username="canhhuynh", comments_count=11)
-    test_title = str(post.title)
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="canhhuynh", password="123456")
 
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="canhhuynh", password="123456")
+        home = HomePage(driver=driver)
+        home.open_page()
+        home.delete_post()
+        home.accept_delete_modal()
 
-    home = HomePage(driver=driver)
-    home.open_page()
-    home.delete_post()
-    home.accept_delete_modal()
-
-    msg = home.get_toast_message()
-    assert msg == "Xóa thành công"
-    current_titles = home.get_all_post_titles()
-    assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
+        msg = home.get_toast_message()
+        assert msg == "Xóa thành công"
+        current_titles = home.get_all_post_titles()
+        assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
 
 
-def test_cancel_delete_post_with_10_comments(driver, post_factory):
-    post = post_factory(username="canhhuynh", comments_count=11)
+    def test_cancel_delete_post_with_10_comments(driver, post_factory):
+        post = post_factory(username="canhhuynh", comments_count=11)
 
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="canhhuynh", password="123456")
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="canhhuynh", password="123456")
 
-    home = HomePage(driver=driver)
+        home = HomePage(driver=driver)
 
-    home.delete_post()
-    home.cancel_delete_modal()
-    assert home.cancel_delete_modal() is True
+        home.delete_post()
+        home.cancel_delete_modal()
+        assert home.cancel_delete_modal() is True
 
-def test_delete_button_hidden_for_other_post(driver, post_factory):
-    post1 = post_factory(username="canhhuynh", comments_count=11)
-    post2 = post_factory(username="ngocson")
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="canhhuynh", password="123456")
+    def test_delete_button_hidden_for_other_post(driver, post_factory):
+        post1 = post_factory(username="canhhuynh", comments_count=11)
+        post2 = post_factory(username="ngocson")
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="canhhuynh", password="123456")
 
-    home = HomePage(driver=driver)
-    time.sleep(1)
-    posts = home.get_all_post()
-    for post in posts:
-        author_element = post.find_element(By.CSS_SELECTOR, "[id^='author-post-']").text
-        author_name = author_element.split("•")[0].replace("Tác giả:", "").strip()
-        if author_name != "Thế Cảnh" :
-            del_btn = post.find_elements(By.ID, "delBtn")
-            assert not del_btn
+        home = HomePage(driver=driver)
+        time.sleep(1)
+        posts = home.get_all_post()
+        for post in posts:
+            author_element = post.find_element(By.CSS_SELECTOR, "[id^='author-post-']").text
+            author_name = author_element.split("•")[0].replace("Tác giả:", "").strip()
+            if author_name != "Thế Cảnh" :
+                del_btn = post.find_elements(By.ID, "delBtn")
+                assert not del_btn
 
-def test_delete_button_hidden_for_pinned_post(driver, post_factory):
-    post1 = post_factory(username="ngocson", comments_count=11)
-    post2 = post_factory(username="ngocson", is_pinned=True)
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="ngocson", password="123456")
-    time.sleep(1)
-    user_post = UserPostPage(driver=driver)
-    user_post.open_page()
-    time.sleep(1)
+    def test_delete_button_hidden_for_pinned_post(driver, post_factory):
+        post1 = post_factory(username="ngocson", comments_count=11)
+        post2 = post_factory(username="ngocson", is_pinned=True)
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="ngocson", password="123456")
+        time.sleep(1)
+        user_post = UserPostPage(driver=driver)
+        user_post.open_page()
+        time.sleep(1)
 
-    posts = user_post.get_all_post()
-    for p in posts:
-        is_pinned = p.find_element(By.CSS_SELECTOR, "[id^='pinned']")
-        if is_pinned:
-            del_btn = p.find_elements(By.ID, "delBtn")
-            assert not del_btn
+        posts = user_post.get_all_post()
+        for p in posts:
+            is_pinned = p.find_element(By.CSS_SELECTOR, "[id^='pinned']")
+            if is_pinned:
+                del_btn = p.find_elements(By.ID, "delBtn")
+                assert not del_btn
 
-def test_delete_button_hidden_for_locked_post(driver, post_factory):
-    post1 = post_factory(username="canhhuynh", comments_count=11)
-    post2 = post_factory(username="canhhuynh", is_locked=True)
+    def test_delete_button_hidden_for_locked_post(driver, post_factory):
+        post1 = post_factory(username="canhhuynh", comments_count=11)
+        post2 = post_factory(username="canhhuynh", is_locked=True)
 
-    login = LoginPage(driver=driver)
-    login.open_page()
-    login.login(username="canhhuynh", password="123456")
-    time.sleep(1)
-    user_post = UserPostPage(driver=driver)
-    user_post.open_page()
-    time.sleep(1)
+        login = LoginPage(driver=driver)
+        login.open_page()
+        login.login(username="canhhuynh", password="123456")
+        time.sleep(1)
+        user_post = UserPostPage(driver=driver)
+        user_post.open_page()
+        time.sleep(1)
 
-    posts = user_post.get_all_post()
-    for p in posts:
-        is_locked = p.find_elements(By.CSS_SELECTOR, "[id^='locked']")
-        if is_locked:
-            del_btn = p.find_elements(By.ID, "delBtn")
-            assert not del_btn
+        posts = user_post.get_all_post()
+        for p in posts:
+            is_locked = p.find_elements(By.CSS_SELECTOR, "[id^='locked']")
+            if is_locked:
+                del_btn = p.find_elements(By.ID, "delBtn")
+                assert not del_btn
 
 
 
