@@ -1,4 +1,5 @@
 import pytest
+import os
 import hashlib
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -41,6 +42,8 @@ def driver():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")
 
+    if os.getenv("CI"):
+        chrome_options.add_argument("--headless=new")
     # For CI environment (Ubuntu with Chromium)
     import os
     if os.getenv('CHROME_DRIVER_PATH'):
