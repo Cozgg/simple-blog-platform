@@ -3,9 +3,13 @@
 {% block title %}Trang cá nhân - {{ user.name }}{% endblock %}
 
 {% block content %}
-<h1 class="text-success text-center mt-2">TRANG CÁ NHÂN</h1>
-
-<div class="container mt-4" style="max-width: 800px;">
+<div class="container mt-4" style="max-width: 800px; min-height: 60vh;">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-dark display-6 mb-2">
+            <i class="bi bi-person-circle me-2"></i>TRANG CÁ NHÂN
+        </h1>
+        <div class="mx-auto" style="width: 80px; height: 3px; background: linear-gradient(90deg, #0d6efd, #198754);"></div>
+    </div>
     <div class="form-floating mb-3">
         <div class="d-flex align-items-center">
             {% if user.avatar %}
@@ -23,63 +27,81 @@
         </div>
     </div>
 
-    <h3 class="fw-bold mb-3 text-dark">Bài viết của bạn ({{ posts|length }})</h3>
-
-    {% for post in posts %}
-    <div class="card mb-3 {% if post.is_pinned %}border-primary{% endif %}">
-        {% if post.image %}
-        <img src="{{ post.image }}" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="{{ post.title }}">
+    <h3 class="fw-bold mb-3 text-dark">
+        {% if current_user.is_authenticated and current_user.id == user.id %}
+            Bài viết của bạn ({{ posts|length }})
+        {% else %}
+            Bài viết của {{ user.name }} ({{ posts|length }})
         {% endif %}
-        <div class="card-body">
-            <h5 class="card-title fw-bold text-dark">
-                {{ post.title }}
-                {% if post.is_pinned %}
-                <span class="badge bg-primary ms-1 small">Đã ghim</span>
-                {% endif %}
-                {% if post.is_locked %}
-                <span class="badge bg-secondary ms-1 small">Đã khóa</span>
-                {% endif %}
-            </h5>
-            <p class="card-text text-secondary small">
-                {{ post.content | truncate(100, True, '...') }}
-            </p>
-            <p class="card-text text-muted small mb-2">
-                Đăng vào: {{ post.created_date.strftime('%d/%m/%Y %H:%M') }} | Bình luận: {{ post.comments|length }}
-            </p>
-            <div>
-                <a href="{{url_for('post_detail_view', post_id=post.id)}}" class="btn btn-sm btn-outline-dark">Xem chi tiết</a>
-                {% if not post.is_locked and not post.is_pinned %}
-                <button type="button" class="btn btn-sm btn-danger" onclick="deletePost({{ post.id }})">Xóa</button>
-                {% endif %}
+    </h3>
+    <div class="row" id="post-list-container">
+        {% for post in posts %}
+        <div id="post-{{ post.id }}" class="card mb-3 {% if post.is_pinned %}border-primary{% endif %}">
+            {% if post.image %}
+            <img src="{{ post.image }}" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="{{ post.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-dark">
+                    {{ post.title }}
+                    {% if post.is_pinned %}
+                    <span class="badge bg-primary ms-1 small" id="pinned">Đã ghim</span>
+                    {% endif %}
+                    {% if post.is_locked %}
+                    <span class="badge bg-secondary ms-1 small" id="locked">Đã khóa</span>
+                    {% endif %}
+                </h5>
+                <p class="card-text text-secondary small">
+                    {{ post.content | truncate(100, True, '...') }}
+                </p>
+                <p class="card-text text-muted small mb-2">
+                    Đăng vào: {{ post.created_date.strftime('%d/%m/%Y %H:%M') }} | Bình luận: {{ post.comments|length }}
+                </p>
+                <div>
+                    <a href="{{url_for('post_detail_view', post_id=post.id)}}" class="btn btn-sm btn-outline-dark">Xem chi tiết</a>
+
+                    {% if current_user.is_authenticated and current_user.id == post.user_id %}
+                        {% if not post.is_locked and not post.is_pinned %}
+                        <button type="button" class="btn btn-sm btn-danger" onclick="deletePost({{ post.id }})">Xóa</button>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            {{ user.name }} chưa đăng bài viết nào.
+        </div>
+        {% endfor %}
     </div>
-    {% else %}
-    <div class="alert alert-info text-center">
-        Bạn chưa đăng bài viết nào.
-    </div>
-    {% endfor %}
+    {% set current_page = request.args.get('page', 1) | int %}
 
     {% if pages > 1 %}
-    <nav aria-label="Page navigation" class="mt-4">
+    <nav aria-label="Page navigation" class="mt-5 mb-4">
         <ul class="pagination justify-content-center">
-            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
-                <a class="page-link text-dark" href="{% if page > 1 %}?page={{ page - 1 }}{% else %}#{% endif %}">
+
+            <li class="page-item {% if current_page <= 1 %}disabled{% endif %}" id="back-page-btn">
+                <a class="page-link text-dark"
+                   href="{% if current_page > 1 %}?page={{ current_page - 1 }}{% else %}#{% endif %}">
                     &laquo; Trước
                 </a>
             </li>
+
             {% for p in range(1, pages + 1) %}
-            <li class="page-item {% if page == p %}active{% endif %}">
-                <a class="page-link {% if page == p %}bg-dark border-dark text-white{% else %}text-dark{% endif %}" href="?page={{ p }}">
+            <li class="page-item {% if current_page == p %}active{% endif %}">
+                <a class="page-link {% if current_page == p %}bg-dark border-dark text-white{% else %}text-dark{% endif %}"
+                   href="?page={{ p }}">
                     {{ p }}
                 </a>
             </li>
             {% endfor %}
-            <li class="page-item {% if page >= pages %}disabled{% endif %}">
-                <a class="page-link text-dark" href="{% if page < pages %}?page={{ page + 1 }}{% else %}#{% endif %}">
+
+            <li class="page-item {% if current_page >= pages %}disabled{% endif %}" id="next-page-btn">
+                <a class="page-link text-dark"
+                   href="{% if current_page < pages %}?page={{ current_page + 1 }}{% else %}#{% endif %}">
                     Sau &raquo;
                 </a>
             </li>
+
         </ul>
     </nav>
     {% endif %}

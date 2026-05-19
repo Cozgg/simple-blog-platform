@@ -8,12 +8,12 @@ from blogapp.test.pages.BasePage import BasePage
 import time as t
 
 class HomePage(BasePage):
-    URL = 'http://127.0.0.1:5000'
-    MODAL_TRIGGER = (By.CSS_SELECTOR, "button.btn-light[data-bs-target='#createPostModal']")
+    URL = 'http://127.0.0.1:5000/'
+    MODAL_TRIGGER = (By.ID, "btn-create-post")
     MODAL = (By.ID, "createPostModal")
     TITLE_INPUT = (By.NAME, "title")
     CONTENT_INPUT = (By.NAME, "content")
-    SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    SUBMIT_BUTTON = (By.CSS_SELECTOR, "#createPostModal button.btn-primary")
     ERROR_MESSAGE = (By.ID, "post-error")
     DELETE_POST_BUTTON = (By.CLASS_NAME, "btn-danger")
     POST_CONTAINER = (By.ID, "post-list-container")
@@ -26,7 +26,7 @@ class HomePage(BasePage):
     WARNING_MODAL = (By.ID, "globalConfirmModal")
     CONFIRM_DELETE_BTN = (By.ID, "btnConfirmYes")
     CANCEL_DELETE_BTN = (By.ID, "btnCancel")
-    SUCCESS_MESSAGE = (By.ID, "post-success")
+    SUCCESS_MESSAGE = (By.ID, "toast-message")
     TITLE_ERROR = (By.ID, "title-error")
     CONTENT_ERROR = (By.ID, "content-error")
 
@@ -37,18 +37,21 @@ class HomePage(BasePage):
         self.open(url)
 
     def open_create_modal(self):
-        try:
-            trigger = self.find(*self.MODAL_TRIGGER)
-            self.driver.execute_script("arguments[0].click();", trigger)
-        except:
-            self.driver.execute_script("document.querySelector('[data-bs-target=\"#createPostModal\"]').click();")
+        # Wait for button to be visible and clickable
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(self.MODAL_TRIGGER))
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(self.MODAL_TRIGGER))
+        self.click(*self.MODAL_TRIGGER)
+        t.sleep(1)  # Wait for modal to appear
         WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(self.MODAL))
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(self.TITLE_INPUT))
+        t.sleep(0.5)
 
     def submit_post_ui(self, title, content):
         self.typing(*self.TITLE_INPUT, title)
+        t.sleep(0.5)
         self.typing(*self.CONTENT_INPUT, content)
-        self.driver.execute_script("arguments[0].click();", self.find(*self.SUBMIT_BUTTON))
+        t.sleep(0.5)
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(self.SUBMIT_BUTTON))
+        self.click(*self.SUBMIT_BUTTON)
 
     def submit_post_with_image(self, title, content, image_path):
         self.typing(*self.TITLE_INPUT, title)
@@ -57,7 +60,7 @@ class HomePage(BasePage):
         file_input = self.find(By.NAME, "image")
         file_input.send_keys(image_path)
 
-        self.driver.execute_script("arguments[0].click();", self.find(*self.SUBMIT_BUTTON))
+        self.click(*self.SUBMIT_BUTTON)
 
     def wait_for_success_and_refresh(self, post_title):
         WebDriverWait(self.driver, 10).until(EC.invisibility_of_element_located(self.MODAL))
@@ -104,14 +107,12 @@ class HomePage(BasePage):
             return error_element.text
         return None
 
-
     def wait_for_home_page(self):
         WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located(
                 self.CREATE_POST_BUTTON
             )
         )
-
 
     def delete_post(self):
         time.sleep(2)
@@ -125,7 +126,6 @@ class HomePage(BasePage):
         delete_btn = latest_post.find_element(*self.DELETE_POST_BUTTON)
         delete_btn.click()
 
-
     def get_all_post_titles(self):
         self.driver.implicitly_wait(2)
 
@@ -133,7 +133,6 @@ class HomePage(BasePage):
         posts = post_container.find_elements(*self.POST_ITEM)
 
         return [p.find_element(*self.POST_TITLE).text for p in posts]
-
 
     def get_all_post(self):
         while True:
@@ -154,7 +153,6 @@ class HomePage(BasePage):
             except NoSuchElementException:
                 return result
 
-
     def accept_delete_modal(self):
         try:
             WebDriverWait(self.driver, 10).until(
@@ -165,7 +163,6 @@ class HomePage(BasePage):
         except TimeoutException:
             assert False, "Lỗi: Không hiển thị Modal cảnh báo khi xóa bài > 10 bình luận"
 
-
     def cancel_delete_modal(self):
         try:
             WebDriverWait(self.driver, 3).until(
@@ -175,3 +172,7 @@ class HomePage(BasePage):
             return True
         except TimeoutException:
             assert False, "Lỗi: Không hiển thị Modal cảnh báo khi xóa bài > 10 bình luận"
+
+    def get_success_message(self):
+        toast = WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located(self.SUCCESS_MESSAGE))
+        return toast.text
