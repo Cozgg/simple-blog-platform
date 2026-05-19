@@ -3,7 +3,7 @@ import math
 from flask_login import current_user, logout_user, login_user, login_required
 from blogapp.decorators import login_required as custom_login_required
 from blogapp import app, dao, login
-from flask import render_template, jsonify, request, redirect
+from flask import render_template, jsonify, request, redirect, url_for
 from blogapp.models import UserRole, Post
 
 
