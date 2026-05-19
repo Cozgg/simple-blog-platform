@@ -111,18 +111,7 @@ def test_delete_post_success(driver, post_factory):
     login.login(username="admin", password="admin123")
 
     home = HomePage(driver=driver)
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "before_delete"
-    )
     home.delete_post()
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "after_delete"
-    )
-
     msg = home.get_toast_message()
     assert msg == "Xóa thành công"
     current_titles = home.get_all_post_titles()
@@ -138,18 +127,7 @@ def test_admin_delete_post_user_success(driver, post_factory):
 
     home = HomePage(driver=driver)
     home.wait_for_home_page()
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "before_delete"
-    )
     home.delete_post()
-    time.sleep(1)
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "after_delete"
-    )
     msg = home.get_toast_message()
     assert msg == "Xóa thành công"
     current_titles = home.get_all_post_titles()
@@ -163,19 +141,10 @@ def test_modal_confirmed_post_with_10_comments(driver, post_factory):
     login.login(username="canhhuynh", password="123456")
 
     home = HomePage(driver=driver)
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "before_delete"
-    )
     home.delete_post()
 
     is_modal_open = home.accept_delete_modal()
-    save_step_screenshot(
-        driver,
-        "modal_open",
-        "modal_displayed"
-    )
+
     assert is_modal_open is True
 
 def test_delete_post_with_10_comments_success(driver, post_factory):
@@ -188,24 +157,8 @@ def test_delete_post_with_10_comments_success(driver, post_factory):
 
     home = HomePage(driver=driver)
     home.open_page()
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "before_delete"
-    )
     home.delete_post()
     home.accept_delete_modal()
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "before_click"
-    )
-    time.sleep(1)
-    save_step_screenshot(
-        driver,
-        "delete_post_success",
-        "after_click"
-    )
 
     msg = home.get_toast_message()
     assert msg == "Xóa thành công"
@@ -224,17 +177,6 @@ def test_cancel_delete_post_with_10_comments(driver, post_factory):
 
     home.delete_post()
     home.cancel_delete_modal()
-    save_step_screenshot(
-        driver,
-        "cancel_modal",
-        "before_cancel"
-    )
-    time.sleep(1)
-    save_step_screenshot(
-        driver,
-        "cancel_modal",
-        "after_cancel"
-    )
     assert home.cancel_delete_modal() is True
 
 def test_delete_button_hidden_for_other_post(driver, post_factory):
@@ -245,13 +187,8 @@ def test_delete_button_hidden_for_other_post(driver, post_factory):
     login.login(username="canhhuynh", password="123456")
 
     home = HomePage(driver=driver)
-    posts = home.get_all_post()
     time.sleep(1)
-    save_step_screenshot(
-        driver,
-        "hidden_delete_button",
-        "delete_button_hidden"
-    )
+    posts = home.get_all_post()
     for post in posts:
         author_element = post.find_element(By.CSS_SELECTOR, "[id^='author-post-']").text
         author_name = author_element.split("•")[0].replace("Tác giả:", "").strip()
@@ -271,11 +208,6 @@ def test_delete_button_hidden_for_pinned_post(driver, post_factory):
     time.sleep(1)
 
     posts = user_post.get_all_post()
-    save_step_screenshot(
-        driver,
-        "hidden_delete_button",
-        "delete_button_hidden"
-    )
     for p in posts:
         is_pinned = p.find_element(By.CSS_SELECTOR, "[id^='pinned']")
         if is_pinned:
@@ -295,11 +227,6 @@ def test_delete_button_hidden_for_locked_post(driver, post_factory):
     time.sleep(1)
 
     posts = user_post.get_all_post()
-    save_step_screenshot(
-        driver,
-        "hidden_delete_button",
-        "delete_button_hidden"
-    )
     for p in posts:
         is_locked = p.find_elements(By.CSS_SELECTOR, "[id^='locked']")
         if is_locked:

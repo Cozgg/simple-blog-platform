@@ -62,13 +62,47 @@ function deletePost(postId, isConfirmed = false) {
 function submitPost(e) {
     e.preventDefault();
     const form = document.getElementById('createPostForm');
-    const formData = new FormData(form);
-
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const titleError = document.getElementById('title-error');
+    const contentError = document.getElementById('content-error');
     const errorDiv = document.getElementById('post-error');
     const successDiv = document.getElementById('post-success');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
     if (errorDiv) errorDiv.classList.add('d-none');
     if (successDiv) successDiv.classList.add('d-none');
+    if (titleError) titleError.classList.add('d-none');
+    if (contentError) contentError.classList.add('d-none');
+
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    let hasError = false;
+
+    if (!title || title.length < 10) {
+        if (titleError) {
+            titleError.textContent = 'Tiêu đề phải từ 10 đến 200 ký tự';
+            titleError.classList.remove('d-none');
+        }
+        hasError = true;
+    }
+
+    if (!content || content.length < 50) {
+        if (contentError) {
+            contentError.textContent = 'Nội dung phải từ 50 đến 5000 ký tự';
+            contentError.classList.remove('d-none');
+        }
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    const formData = new FormData(form);
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang đăng...';
+    }
 
     fetch('/api/posts', {
         method: 'POST',
@@ -122,6 +156,12 @@ function submitPost(e) {
                 errorDiv.classList.remove('d-none');
             } else {
                 showToast('Lỗi kết nối: ' + error.message, 'danger');
+            }
+        })
+        .finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Đăng bài';
             }
         });
 }

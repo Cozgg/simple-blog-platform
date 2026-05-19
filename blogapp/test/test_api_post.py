@@ -25,7 +25,7 @@ def test_create_post_success(test_client, mocker):
         "/api/posts",
         data={
             "title": "Tiêu đề bài viết hợp lệ dài trên 10 ký tự",
-            "content": "Nội dung bài viết này rất dài và đầy đủ thông tin, chắc chắn trên 50 ký tự để thỏa mãn điều kiện validation của API."
+            "content": "asdasdaasdfjhaldsinbal;djgnaldgnbalkojgnadgadgadfadfasdasdaasdfjhaldsinbal;djgnaldgnbalkojgnadgadgadfadfasdasdaasdfjhaldsinbal;djgnaldgnbalkojgnadgadgadfadf."
         }
     )
 
@@ -42,7 +42,7 @@ def test_create_post_invalid_title(test_client, mocker):
         "/api/posts",
         data={
             "title": "Ngắn",
-            "content": "Nội dung bài viết này rất dài và đầy đủ thông tin, chắc chắn trên 50 ký tự."
+            "content": "asdasdaasdfjhaldsinbal;djgnaldgnbalkojgnadgadgadfadfasdasdaasdfjhaldsinbal;djgnaldgnbalkojgnadgadgadfadfasdasdaasdfjhaldsinbal;djgnaldgnbalkojgnadgadgadfadf"
         }
     )
 

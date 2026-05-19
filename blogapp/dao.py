@@ -24,6 +24,8 @@ def get_posts(kw=None, id=None, page=None, user_id=None):
         return Post.query.get(id)
     if kw:
         query = query.filter(Post.title.contains(kw))
+    if user_id:
+        query = query.filter(Post.user_id == user_id)
     if page:
         start = (page - 1) * app.config['PAGE_SIZE']
         query = query.slice(start, start + app.config['PAGE_SIZE'])

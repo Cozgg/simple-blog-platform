@@ -22,11 +22,6 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Install Chrome and ChromeDriver
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y chromium-browser chromium-chromedriver
-
     - name: Initialize database
       env:
         DATABASE_URL: sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db
@@ -36,8 +31,8 @@ jobs:
     - name: Run tests
       env:
         DATABASE_URL: sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db
-        CHROME_DRIVER_PATH: /usr/bin/chromedriver
+        PYTHONPATH: .
       run: |
-        PYTHONPATH=. DATABASE_URL=sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db python blogapp/index.py &
+        python blogapp/index.py &
         sleep 5
-        PYTHONPATH=. pytest blogapp
+        pytest blogapp
