@@ -1,7 +1,6 @@
 import time
-import os
 import pytest
-from blogapp.test.test_base import driver
+from blogapp.test.base import driver
 from selenium.webdriver.common.by import By
 from blogapp.test.pages.PostDetailPage import PostDetailPage
 from blogapp.test.pages.LoginPage import LoginPage

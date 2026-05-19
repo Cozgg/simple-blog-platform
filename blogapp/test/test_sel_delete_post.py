@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 
 from blogapp import db, app
 from blogapp.models import Post, Comment, User
+from blogapp.test.pages.ProfilePage import ProfilePage
 from blogapp.test.pages.HomePage import HomePage
 from blogapp.test.pages.LoginPage import LoginPage
 from blogapp.test.pages.UserPostPage import UserPostPage
@@ -103,7 +104,7 @@ def post_factory():
 
 @pytest.mark.selenium
 class TestSelDeletePost:
-    def test_delete_post_success(driver, post_factory):
+    def test_delete_post_success(self, driver, post_factory):
         post = post_factory()
         test_title = str(post.title)
 
@@ -118,7 +119,7 @@ class TestSelDeletePost:
         current_titles = home.get_all_post_titles()
         assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
 
-    def test_admin_delete_post_user_success(driver, post_factory):
+    def test_admin_delete_post_user_success(self, driver, post_factory):
         post = post_factory(username="canhhuynh")
         test_title = str(post.title)
 
@@ -134,7 +135,7 @@ class TestSelDeletePost:
         current_titles = home.get_all_post_titles()
         assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
 
-    def test_modal_confirmed_post_with_10_comments(driver, post_factory):
+    def test_modal_confirmed_post_with_10_comments(self, driver, post_factory):
         post = post_factory(username="canhhuynh", comments_count=11)
 
         login = LoginPage(driver=driver)
@@ -148,7 +149,7 @@ class TestSelDeletePost:
 
         assert is_modal_open is True
 
-    def test_delete_post_with_10_comments_success(driver, post_factory):
+    def test_delete_post_with_10_comments_success(self, driver, post_factory):
         post = post_factory(username="canhhuynh", comments_count=11)
         test_title = str(post.title)
 
@@ -167,7 +168,7 @@ class TestSelDeletePost:
         assert test_title not in current_titles, "Lỗi: Bài viết vẫn còn hiển thị trên giao diện"
 
 
-    def test_cancel_delete_post_with_10_comments(driver, post_factory):
+    def test_cancel_delete_post_with_10_comments(self, driver, post_factory):
         post = post_factory(username="canhhuynh", comments_count=11)
 
         login = LoginPage(driver=driver)
@@ -180,7 +181,7 @@ class TestSelDeletePost:
         home.cancel_delete_modal()
         assert home.cancel_delete_modal() is True
 
-    def test_delete_button_hidden_for_other_post(driver, post_factory):
+    def test_delete_button_hidden_for_other_post(self, driver, post_factory):
         post1 = post_factory(username="canhhuynh", comments_count=11)
         post2 = post_factory(username="ngocson")
         login = LoginPage(driver=driver)
@@ -197,25 +198,25 @@ class TestSelDeletePost:
                 del_btn = post.find_elements(By.ID, "delBtn")
                 assert not del_btn
 
-    def test_delete_button_hidden_for_pinned_post(driver, post_factory):
+    def test_delete_button_hidden_for_pinned_post(self, driver, post_factory):
         post1 = post_factory(username="ngocson", comments_count=11)
         post2 = post_factory(username="ngocson", is_pinned=True)
         login = LoginPage(driver=driver)
         login.open_page()
         login.login(username="ngocson", password="123456")
         time.sleep(1)
-        user_post = UserPostPage(driver=driver)
-        user_post.open_page()
+        user_post = ProfilePage(driver=driver)
+        user_post.open_page(user_id=2)
         time.sleep(1)
 
         posts = user_post.get_all_post()
         for p in posts:
-            is_pinned = p.find_element(By.CSS_SELECTOR, "[id^='pinned']")
+            is_pinned = p.find_elements(By.CSS_SELECTOR, "[id^='pinned']")
             if is_pinned:
                 del_btn = p.find_elements(By.ID, "delBtn")
                 assert not del_btn
 
-    def test_delete_button_hidden_for_locked_post(driver, post_factory):
+    def test_delete_button_hidden_for_locked_post(self, driver, post_factory):
         post1 = post_factory(username="canhhuynh", comments_count=11)
         post2 = post_factory(username="canhhuynh", is_locked=True)
 
@@ -223,8 +224,8 @@ class TestSelDeletePost:
         login.open_page()
         login.login(username="canhhuynh", password="123456")
         time.sleep(1)
-        user_post = UserPostPage(driver=driver)
-        user_post.open_page()
+        user_post = ProfilePage(driver=driver)
+        user_post.open_page(user_id=3)
         time.sleep(1)
 
         posts = user_post.get_all_post()

@@ -8,7 +8,7 @@
         <header class="mb-4 border-bottom pb-3">
             <h1 class="fw-bolder mb-2 text-dark">{{ post.title }}</h1>
             <div class="text-muted small">
-                <span class="fw-medium">Tác giả: {{ post.author.name }}</span>
+                <span class="fw-medium">Tác giả: <a href="{{url_for('profile_by_id', user_id=post.user_id)}}" class="text-decoration-none">{{ post.author.name }}</a></span>
                 {% if post.is_pinned %}<span class="badge bg-primary ms-2">Đã ghim</span>{% endif %}
                 {% if post.is_locked %}<span class="badge bg-secondary ms-2">Đã khóa</span>{% endif %}
             </div>

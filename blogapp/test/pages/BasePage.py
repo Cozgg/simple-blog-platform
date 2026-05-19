@@ -17,9 +17,6 @@ class BasePage:
     def finds(self, by, value):
         return self.driver.find_elements(by, value)
 
-    def click(self, by, value):
-        self.find(by, value).click()
-
     def typing(self, by, value, text):
         e = self.find(by, value)
         e.clear()
@@ -33,3 +30,7 @@ class BasePage:
         )
 
         return toast_element.text
+
+    def click(self, by, value):
+        e = self.find(by, value)
+        e.click()

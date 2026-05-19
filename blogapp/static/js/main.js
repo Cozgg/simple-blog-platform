@@ -111,12 +111,7 @@ function submitPost(e) {
         .then(res => res.json())
         .then(data => {
             if (data.status === 200 || data.status === 201) {
-                if (successDiv) {
-                    successDiv.textContent = data.msg || 'Tạo bài viết thành công';
-                    successDiv.classList.remove('d-none');
-                } else {
-                    showToast(data.msg || 'Tạo bài viết thành công', 'success');
-                }
+                showToast(data.msg || 'Đăng bài viết thành công', 'success');
                 form.reset();
 
                 const modalEl = document.getElementById('createPostModal');

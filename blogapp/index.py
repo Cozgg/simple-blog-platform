@@ -19,12 +19,6 @@ def register_routers(app):
         return render_template('index.html', posts=posts,
                                pages=math.ceil(dao.count_posts() / app.config['PAGE_SIZE']))
 
-    @app.route("/user-posts")
-    def user_posts_view():
-        page = int(request.args.get('page', 1))
-        posts = dao.get_posts(page=page, user_id=current_user.id)
-        return render_template('user-post.html', posts=posts, pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
-
     @app.route('/api/comments', methods=['POST'])
     @login_required
     def add_comment():
@@ -112,11 +106,18 @@ def register_routers(app):
     @app.route('/profile')
     @login_required
     def profile_view():
+        return redirect(url_for('profile_by_id', user_id=current_user.id))
+
+    @app.route('/profile/<int:user_id>')
+    def profile_by_id(user_id):
         page = int(request.args.get('page', 1))
-        posts = dao.get_posts(user_id=current_user.id, page=page)
-        total_posts = Post.query.filter_by(user_id=current_user.id).count()
+        user = dao.get_user_by_id(user_id)
+        if user is None:
+            return redirect(url_for('index_view'))
+        posts = dao.get_posts(user_id=user_id, page=page)
+        total_posts = Post.query.filter_by(user_id=user_id).count()
         pages = math.ceil(total_posts / app.config['PAGE_SIZE'])
-        return render_template('profile.html', user=current_user, posts=posts, pages=pages)
+        return render_template('profile.html', user=user, posts=posts, pages=pages)
 
     @app.route('/register', methods=['GET', 'POST'])
     def register_view():
