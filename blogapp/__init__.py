@@ -17,6 +17,6 @@ mail = Mail(app=app)
 db = SQLAlchemy(app=app)
 login = LoginManager(app=app)
 
-cloudinary.config(cloud_name='dpl8syyb9',
-                  api_key='423338349327346',
-                  api_secret='zfwveRcXlclSOKM7mqSU2j0421c')
+cloudinary.config(cloud_name='dxek6c0tg',
+                  api_key='734692924117844',
+                  api_secret='n6dofJ_qhNEGwXvw5GnlrbpnbWk')
