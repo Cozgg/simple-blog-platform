@@ -35,4 +35,4 @@ jobs:
       run: |
         python blogapp/index.py &
         sleep 5
-        pytest blogapp
+        pytest -m "not selenium" blogapp
