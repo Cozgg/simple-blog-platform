@@ -37,13 +37,11 @@ def setup_db():
 @pytest.fixture
 def driver():
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")
 
-    if os.getenv("CI"):
-        chrome_options.add_argument("--headless=new")
     # For CI environment (Ubuntu with Chromium)
     if os.getenv('CHROME_DRIVER_PATH'):
         from selenium.webdriver.chrome.service import Service
