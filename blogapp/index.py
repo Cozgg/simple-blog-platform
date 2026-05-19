@@ -1,4 +1,3 @@
-
 import math
 from flask_login import current_user, logout_user, login_user, login_required
 from blogapp.decorators import login_required as custom_login_required
@@ -11,13 +10,14 @@ from blogapp.models import UserRole, Post
 def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
+
 def register_routers(app):
     @app.route('/')
     def index():
         page = int(request.args.get('page', 1))
         posts = dao.get_posts(page=page)
         return render_template('index.html', posts=posts,
-                            pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
+                               pages=math.ceil(dao.count_posts() / app.config['PAGE_SIZE']))
 
     @app.route("/user-posts")
     def user_posts_view():
@@ -85,7 +85,7 @@ def register_routers(app):
     def post_detail_view(post_id):
         p = dao.get_posts(id=post_id)
         if p is None:
-            return redirect(url_for('index_view'))
+            return redirect(url_for('index'))
         return render_template('post-detail.html', post=p)
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -99,9 +99,9 @@ def register_routers(app):
                 login_user(user=user)
                 next = request.args.get('next')
                 return redirect(next if next else '/')
-            
+
             return render_template('login.html', err_msg='Sai tên đăng nhập hoặc mật khẩu!')
-        
+
         return render_template('login.html')
 
     @app.route('/logout')
@@ -124,19 +124,20 @@ def register_routers(app):
             data = request.form
             password = data.get('password')
             confirm = data.get('confirm')
-            
+
             if password != confirm:
                 err_msg = 'Mật khẩu không khớp!'
                 return render_template('register.html', err_msg=err_msg)
 
             try:
-                dao.add_user(name=data.get('name'), username=data.get('username'), password=password, avatar=request.files.get('avatar'))
+                dao.add_user(name=data.get('name'), username=data.get('username'), password=password,
+                             avatar=request.files.get('avatar'), email=data.get('email', ''))
                 return redirect('/login')
             except ValueError as ex:
                 return render_template("register.html", err_msg=str(ex))
             except Exception as ex:
                 return render_template('register.html', err_msg=str(ex))
-                
+
         return render_template('register.html')
 
     @app.route('/api/posts', methods=['POST'])
@@ -178,7 +179,7 @@ def register_routers(app):
 
         except Exception as e:
             return jsonify({
-                'status' : 400,
+                'status': 400,
                 'err_msg': str(e)
             })
 
@@ -190,5 +191,6 @@ def common_attributes():
 
 if __name__ == '__main__':
     from blogapp import admin
+
     register_routers(app=app)
     app.run(debug=True)
