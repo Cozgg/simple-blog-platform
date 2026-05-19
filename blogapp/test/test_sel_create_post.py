@@ -37,6 +37,7 @@ def seed_10_posts():
         db.session.commit()
 
 
+@pytest.mark.selenium
 def test_tc1_create_post_success(driver):
     test_title = "Đi làm cty không anh xin cho "
     test_content = "Quê anh mảnh đất hữu tình, quê anh mảnh đất quê anh, quê anh mảnh đất quê anh, quê anh mảnh đất quê anh."
@@ -60,6 +61,7 @@ def test_tc1_create_post_success(driver):
     driver.save_screenshot('test_tc1_create_post_success.png')
 
 
+@pytest.mark.selenium
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -78,6 +80,7 @@ def test_tc2_create_post_fail_title_too_short(driver):
     driver.save_screenshot('test_tc2_title_too_short.png')
 
 
+@pytest.mark.selenium
 def test_tc3_create_post_fail_content_too_short(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -97,6 +100,7 @@ def test_tc3_create_post_fail_content_too_short(driver):
     driver.save_screenshot('test_tc3_content_too_short.png')
 
 
+@pytest.mark.selenium
 def test_tc4_create_post_fail_both_invalid(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -118,6 +122,7 @@ def test_tc4_create_post_fail_both_invalid(driver):
     driver.save_screenshot('test_tc4_both_invalid.png')
 
 
+@pytest.mark.selenium
 def test_tc5_create_post_empty_fields(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -139,6 +144,7 @@ def test_tc5_create_post_empty_fields(driver):
     driver.save_screenshot('test_tc5_empty_fields.png')
 
 
+@pytest.mark.selenium
 def test_tc6_duplicate_title_same_day(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -166,6 +172,7 @@ def test_tc6_duplicate_title_same_day(driver):
     driver.save_screenshot('test_tc6_duplicate_title.png')
 
 
+@pytest.mark.selenium
 def test_tc7_daily_limit_exceeded(driver, seed_10_posts):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -189,6 +196,7 @@ def test_tc7_daily_limit_exceeded(driver, seed_10_posts):
     driver.save_screenshot('test_tc7_daily_limit.png')
 
 
+@pytest.mark.selenium
 def test_tc8_create_post_with_image(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")

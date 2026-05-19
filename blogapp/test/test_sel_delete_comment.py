@@ -103,6 +103,7 @@ def seed_post_with_other_user_comment():
     yield 1
 
 
+@pytest.mark.selenium
 def test_tc3_owner_click_delete_shows_modal(driver, post_with_comment_factory):
     post = post_with_comment_factory(username="ngocson", comments_count=1)
     post_id = post.id
@@ -121,6 +122,7 @@ def test_tc3_owner_click_delete_shows_modal(driver, post_with_comment_factory):
     driver.save_screenshot('test_tc3_delete_modal_shows.png')
 
 
+@pytest.mark.selenium
 def test_tc3_1_owner_confirm_delete(driver, post_with_comment_factory):
     post = post_with_comment_factory(username="ngocson", comments_count=1, with_replies=True)
     post_id = post.id
@@ -151,6 +153,7 @@ def test_tc3_1_owner_confirm_delete(driver, post_with_comment_factory):
     driver.save_screenshot('test_tc3_1_confirm_delete.png')
 
 
+@pytest.mark.selenium
 def test_tc3_2_owner_cancel_delete(driver, post_with_comment_factory):
     post = post_with_comment_factory(username="ngocson", comments_count=1)
     post_id = post.id
@@ -175,6 +178,7 @@ def test_tc3_2_owner_cancel_delete(driver, post_with_comment_factory):
     driver.save_screenshot('test_tc3_2_cancel_delete.png')
 
 
+@pytest.mark.selenium
 def test_tc3_3_owner_close_delete_modal(driver, post_with_comment_factory):
     post = post_with_comment_factory(username="ngocson", comments_count=1)
     post_id = post.id

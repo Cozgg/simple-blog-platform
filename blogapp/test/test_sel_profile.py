@@ -85,6 +85,7 @@ def seed_user_with_many_posts(test_app):
         db.session.commit()
 
 
+@pytest.mark.selenium
 def test_view_other_user_profile(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -106,6 +107,7 @@ def test_view_other_user_profile(driver):
     driver.save_screenshot('test_view_other_profile.png')
 
 
+@pytest.mark.selenium
 def test_view_other_user_posts(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -121,6 +123,7 @@ def test_view_other_user_posts(driver):
     driver.save_screenshot('test_view_other_user_posts.png')
 
 
+@pytest.mark.selenium
 def test_profile_pagination(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
@@ -154,6 +157,7 @@ def test_profile_pagination(driver):
     driver.save_screenshot('test_profile_pagination.png')
 
 
+@pytest.mark.selenium
 def test_view_own_profile(driver):
     login_page = LoginPage(driver)
     login_page.login("ngocson", "123456")
