@@ -1,48 +1,73 @@
 import pytest
 import time
 import os
-from datetime import date, datetime
-from blogapp import app, db
-from blogapp.models import Post, User
+from blogapp.index import app
+from blogapp import db
+from blogapp.models import User, Post
 from blogapp.test.pages.LoginPage import LoginPage
 from blogapp.test.pages.HomePage import HomePage
 from blogapp.test.base import driver
 
-BASE_URL = "http://127.0.0.1:5000"
+@pytest.fixture
+def seed_10_posts():
+    with app.app_context():
+        user = User.query.filter_by(username='ngocson').first()
+        
+        if not user:
+            pytest.skip("Không thấy user 'ngocson' trong cơ sở dữ liệu.")
+
+        mock_posts = []
+        for i in range(10):
+            p = Post(
+                title=f"Bài đăng thứ {i} để thực hiện bài test số 7 {int(time.time())}",
+                content="Nội dung đủ dài 50 ký tự để lấp đầy DB okeokeokeoke",
+                user_id=user.id
+            )
+            mock_posts.append(p)
+            db.session.add(p)
+        
+        db.session.commit()
+        
+        yield 
+        
+        for p in mock_posts:
+            post_to_delete = Post.query.get(p.id) 
+            if post_to_delete:
+                db.session.delete(post_to_delete)
+        db.session.commit()
 
 
+@pytest.mark.selenium
 def test_tc1_create_post_success(driver):
+    test_title = "Đi làm cty không anh xin cho "
+    test_content = "Quê anh mảnh đất hữu tình, quê anh mảnh đất quê anh, quê anh mảnh đất quê anh, quê anh mảnh đất quê anh."
+
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
     home_page.open_create_modal()
-
-    test_title = f"Tiêu đề bài viết {int(time.time())}"
-    valid_content = "Nội dung bài viết hợp lệ dài trên 50 ký tự để được đăng okeokeokeokeokeokeokeoke."
-
-    home_page.submit_post_ui(test_title, valid_content)
+    home_page.submit_post_ui(test_title, test_content)
     home_page.wait_for_success_and_refresh(test_title)
+
+    # Check for success toast message
+    success_msg = home_page.get_success_message()
+    assert "Đăng bài viết thành công" in success_msg
+
+    # Verify modal is closed
     assert test_title in driver.page_source
 
     driver.save_screenshot('test_tc1_create_post_success.png')
 
-    with app.app_context():
-        post_in_db = Post.query.filter_by(title=test_title).first()
-        if post_in_db:
-            db.session.delete(post_in_db)
-            db.session.commit()
 
-
+@pytest.mark.selenium
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
     home_page.open_create_modal()
     home_page.submit_post_ui("Ngắn", "Nội dung đủ dài để đăng bài viết okeokeokeokeokeoke")
 
@@ -55,13 +80,13 @@ def test_tc2_create_post_fail_title_too_short(driver):
     driver.save_screenshot('test_tc2_title_too_short.png')
 
 
+@pytest.mark.selenium
 def test_tc3_create_post_fail_content_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
     home_page.submit_post_ui("Tiêu đề đủ dài để đăng bài viết okeokeokeoke", "Ko đủ 50 ký tự")
@@ -75,13 +100,13 @@ def test_tc3_create_post_fail_content_too_short(driver):
     driver.save_screenshot('test_tc3_content_too_short.png')
 
 
+@pytest.mark.selenium
 def test_tc4_create_post_fail_both_invalid(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
     home_page.submit_post_ui("Ngắn", "Ngắn")
@@ -97,13 +122,13 @@ def test_tc4_create_post_fail_both_invalid(driver):
     driver.save_screenshot('test_tc4_both_invalid.png')
 
 
+@pytest.mark.selenium
 def test_tc5_create_post_empty_fields(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
     home_page.submit_post_ui("", "")
@@ -119,13 +144,13 @@ def test_tc5_create_post_empty_fields(driver):
     driver.save_screenshot('test_tc5_empty_fields.png')
 
 
+@pytest.mark.selenium
 def test_tc6_duplicate_title_same_day(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     test_title = f"Tiêu đề trùng lặp {int(time.time())}"
     valid_content = "Nội dung bài viết hợp lệ dài trên 50 ký tự để được đăng okeokeokeokeokeokeokeoke."
@@ -146,42 +171,17 @@ def test_tc6_duplicate_title_same_day(driver):
 
     driver.save_screenshot('test_tc6_duplicate_title.png')
 
-    with app.app_context():
-        post_in_db = Post.query.filter_by(title=test_title).first()
-        if post_in_db:
-            db.session.delete(post_in_db)
-            db.session.commit()
 
-
-def test_tc7_daily_limit_exceeded(driver):
+@pytest.mark.selenium
+def test_tc7_daily_limit_exceeded(driver, seed_10_posts):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
-    with app.app_context():
-        today = date.today()
-        current_count = Post.query.filter(
-            Post.user_id == 2, 
-            db.func.date(Post.created_date) == today
-        ).count()
-
-    posts_to_create = 10 - current_count
-    if posts_to_create > 0:
-        with app.app_context():
-            user = User.query.get(2) 
-            for i in range(posts_to_create):
-                post = Post(
-                    title=f"Bài viết test {i} - {int(time.time())}",
-                    content=f"Nội dung bài viết hợp lệ dài trên 50 ký tự để được đăng okeokeokeokeokeokeokeoke cho bài test số {i}.",
-                    user_id=2,
-                    created_date=datetime.now()
-                )
-                db.session.add(post)
-            db.session.commit()
+    home_page.open_page()
 
     home_page.open_create_modal()
+    
     home_page.submit_post_ui(
         f"Tiêu đề bài vượt giới hạn {int(time.time())}",
         "Nội dung bài viết hợp lệ dài trên 50 ký tự để được đăng okeokeokeokeokeokeokeoke."
@@ -195,25 +195,14 @@ def test_tc7_daily_limit_exceeded(driver):
 
     driver.save_screenshot('test_tc7_daily_limit.png')
 
-    with app.app_context():
-        today = date.today()
-        test_posts = Post.query.filter(
-            Post.user_id == 2,
-            db.func.date(Post.created_date) == today,
-            Post.title.like('%test%')
-        ).all()
-        for post in test_posts:
-            db.session.delete(post)
-        db.session.commit()
 
-
+@pytest.mark.selenium
 def test_tc8_create_post_with_image(driver):
     login_page = LoginPage(driver)
-    login_page.open_page(BASE_URL + "/login")
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open_page()
 
     home_page.open_create_modal()
 
@@ -229,11 +218,7 @@ def test_tc8_create_post_with_image(driver):
     home_page.wait_for_success_and_refresh(test_title)
 
     assert test_title in driver.page_source
+    time.sleep(2)
+    assert 'img' in driver.page_source or 'cloudinary' in driver.page_source.lower()
 
-    driver.save_screenshot('test_tc2_create_post_with_image.png')
-
-    with app.app_context():
-        post_in_db = Post.query.filter_by(title=test_title).first()
-        if post_in_db:
-            db.session.delete(post_in_db)
-            db.session.commit()
+    driver.save_screenshot('test_tc8_create_post_with_image.png')

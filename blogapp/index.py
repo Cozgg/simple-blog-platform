@@ -1,9 +1,8 @@
-
 import math
 from flask_login import current_user, logout_user, login_user, login_required
 from blogapp.decorators import login_required as custom_login_required
 from blogapp import app, dao, login
-from flask import render_template, jsonify, request, redirect
+from flask import render_template, jsonify, request, redirect, url_for
 from blogapp.models import UserRole, Post
 
 
@@ -11,13 +10,14 @@ from blogapp.models import UserRole, Post
 def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
+
 def register_routers(app):
     @app.route('/')
     def index():
         page = int(request.args.get('page', 1))
         posts = dao.get_posts(page=page)
         return render_template('index.html', posts=posts,
-                            pages=math.ceil(dao.count_posts()/ app.config['PAGE_SIZE']))
+                               pages=math.ceil(dao.count_posts() / app.config['PAGE_SIZE']))
 
     @app.route('/api/comments', methods=['POST'])
     @login_required
@@ -79,7 +79,7 @@ def register_routers(app):
     def post_detail_view(post_id):
         p = dao.get_posts(id=post_id)
         if p is None:
-            return redirect(url_for('index_view'))
+            return redirect(url_for('index'))
         return render_template('post-detail.html', post=p)
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -93,9 +93,9 @@ def register_routers(app):
                 login_user(user=user)
                 next = request.args.get('next')
                 return redirect(next if next else '/')
-            
+
             return render_template('login.html', err_msg='Sai tên đăng nhập hoặc mật khẩu!')
-        
+
         return render_template('login.html')
 
     @app.route('/logout')
@@ -106,11 +106,18 @@ def register_routers(app):
     @app.route('/profile')
     @login_required
     def profile_view():
+        return redirect(url_for('profile_by_id', user_id=current_user.id))
+
+    @app.route('/profile/<int:user_id>')
+    def profile_by_id(user_id):
         page = int(request.args.get('page', 1))
-        posts = dao.get_posts(user_id=current_user.id, page=page)
-        total_posts = Post.query.filter_by(user_id=current_user.id).count()
+        user = dao.get_user_by_id(user_id)
+        if user is None:
+            return redirect(url_for('index_view'))
+        posts = dao.get_posts(user_id=user_id, page=page)
+        total_posts = Post.query.filter_by(user_id=user_id).count()
         pages = math.ceil(total_posts / app.config['PAGE_SIZE'])
-        return render_template('profile.html', user=current_user, posts=posts, pages=pages)
+        return render_template('profile.html', user=user, posts=posts, pages=pages)
 
     @app.route('/register', methods=['GET', 'POST'])
     def register_view():
@@ -118,19 +125,20 @@ def register_routers(app):
             data = request.form
             password = data.get('password')
             confirm = data.get('confirm')
-            
+
             if password != confirm:
                 err_msg = 'Mật khẩu không khớp!'
                 return render_template('register.html', err_msg=err_msg)
 
             try:
-                dao.add_user(name=data.get('name'), username=data.get('username'), password=password, avatar=request.files.get('avatar'))
+                dao.add_user(name=data.get('name'), username=data.get('username'), password=password,
+                             avatar=request.files.get('avatar'), email=data.get('email', ''))
                 return redirect('/login')
             except ValueError as ex:
                 return render_template("register.html", err_msg=str(ex))
             except Exception as ex:
                 return render_template('register.html', err_msg=str(ex))
-                
+
         return render_template('register.html')
 
     @app.route('/api/posts', methods=['POST'])
@@ -172,11 +180,18 @@ def register_routers(app):
 
         except Exception as e:
             return jsonify({
-                'status' : 400,
+                'status': 400,
                 'err_msg': str(e)
             })
 
+@app.context_processor
+def common_attributes():
+    return {
+        "UserRole": UserRole
+    }
+
 if __name__ == '__main__':
     from blogapp import admin
+
     register_routers(app=app)
     app.run(debug=True)

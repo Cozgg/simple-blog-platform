@@ -7,16 +7,16 @@ from flask_mail import Mail
 import os
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'JKHJHJK786575ghjghjg78675HJGJHGF^&$%$^*%*&^%&^&*%^&')
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "mysql+pymysql://root:Abcd123@localhost/blogdb?charset=utf8mb4")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "mysql+pymysql://root:123456@localhost/blogdb?charset=utf8mb4")
 # app.config['SQLALCHEMY_ECHO'] = True
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-app.config["PAGE_SIZE"] = 8
+app.config["PAGE_SIZE"] = 4
 
 
 mail = Mail(app=app)
 db = SQLAlchemy(app=app)
 login = LoginManager(app=app)
 
-cloudinary.config(cloud_name='dpl8syyb9',
-                  api_key='423338349327346',
-                  api_secret='zfwveRcXlclSOKM7mqSU2j0421c')
+cloudinary.config(cloud_name='dxek6c0tg',
+                  api_key='734692924117844',
+                  api_secret='n6dofJ_qhNEGwXvw5GnlrbpnbWk')

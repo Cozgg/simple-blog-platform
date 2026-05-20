@@ -18,6 +18,8 @@ def get_users(id = None):
 
 def get_posts(kw=None, id=None, page=None, user_id=None):
     query = Post.query.order_by(Post.created_date.desc())
+    if user_id:
+        query = query.filter(Post.user_id == user_id).order_by(Post.is_pinned.desc())
     if id:
         return Post.query.get(id)
     if kw:
@@ -52,7 +54,7 @@ def delete_post(post_id, current_user, is_confirmed=False):
     db.session.commit()
 
 
-def add_user(name, username, password, avatar):
+def add_user(name, username, password, avatar, email=''):
     if len(username) < 5:
         raise ValueError("username phai it nhat co 5 ki tu")
     if len(password) < 8:
@@ -64,7 +66,7 @@ def add_user(name, username, password, avatar):
     if not re.search(r'[A-Z]', password):
         raise ValueError("Mật khẩu phải chứa ít nhất một chữ hoa")
     password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    u = User(name=name.strip(), username=username.strip(), password=password)
+    u = User(name=name.strip(), username=username.strip(), password=password, email=email)
     if avatar:
         res = cloudinary.uploader.upload(avatar)
         u.avatar = res.get("secure_url")

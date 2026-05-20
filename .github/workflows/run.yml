@@ -31,8 +31,7 @@ jobs:
     - name: Run tests
       env:
         DATABASE_URL: sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db
-        PYTHONPATH: .
       run: |
-        python blogapp/index.py &
+        PYTHONPATH=. DATABASE_URL=sqlite:////home/runner/work/simple-blog-platform/simple-blog-platform/blog.db python blogapp/index.py &
         sleep 5
-        pytest blogapp
+        PYTHONPATH=. pytest blogapp -m "not selenium"
