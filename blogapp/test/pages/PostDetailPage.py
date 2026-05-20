@@ -33,6 +33,7 @@ class PostDetailPage(BasePage):
     MODAL_TITLE = (By.ID, "confirmTitle")
     MODAL_BODY = (By.ID, "confirmMessage")
     TOAST_BODY = (By.ID, "toast-message")
+    ALERT_LOCKED_POST = (By.CSS_SELECTOR, ".alert.alert-warning")
 
     def open_page(self, post_id=None):
         self.open(f"{self.URL}{post_id}")
@@ -147,3 +148,6 @@ class PostDetailPage(BasePage):
     def get_toast_message(self):
         toast = WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located(self.TOAST_BODY))
         return toast.text
+
+    def get_locked_alert(self):
+        return self.find(*self.ALERT_LOCKED_POST).text

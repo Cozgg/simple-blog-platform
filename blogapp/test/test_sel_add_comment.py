@@ -14,7 +14,7 @@ class TestCommentPost:
 
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("canhhuynh", "123456")
+        login_page.login("nguyencong", "123456")
         time.sleep(2)
 
         post_page = PostDetailPage(driver)
@@ -51,14 +51,14 @@ class TestCommentPost:
 
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("canhhuynh", "123456")
+        login_page.login("nguyencong", "123456")
         time.sleep(2)
 
         post_page = PostDetailPage(driver)
         post_page.open_page(post_id)
         time.sleep(2)
 
-        post_page.click_reply_button()
+        post_page.click_first_reply_button()
         time.sleep(1)
 
 
@@ -88,7 +88,7 @@ class TestCommentPost:
 
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("canhhuynh", "123456")
+        login_page.login("nguyencong", "123456")
         time.sleep(2)
 
         post_page = PostDetailPage(driver)
@@ -132,7 +132,7 @@ class TestCommentPost:
 
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("canhhuynh", "123456")
+        login_page.login("nguyencong", "123456")
         time.sleep(2)
 
         post_page = PostDetailPage(driver)
@@ -174,7 +174,7 @@ class TestCommentPost:
 
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("canhhuynh", "123456")
+        login_page.login("nguyencong", "123456")
         time.sleep(2)
 
         post_page = PostDetailPage(driver)
@@ -194,7 +194,7 @@ class TestCommentPost:
         post_id = 1
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("canhhuynh", "123456")
+        login_page.login("nguyencong", "123456")
         time.sleep(2)
 
         post_page = PostDetailPage(driver)
@@ -203,7 +203,7 @@ class TestCommentPost:
 
         initial_count = post_page.get_comment_count()
 
-        post_page.click_reply_button()
+        post_page.click_first_reply_button()
         time.sleep(1)
 
         driver.execute_script("window.scrollBy(0, 500);")
@@ -232,3 +232,19 @@ class TestCommentPost:
         time.sleep(2)
         assert "/login" in driver.current_url
         driver.save_screenshot("ActualResult/redirect_to_login.png")
+
+    def test_comment_locked_post(self, driver):
+        post_id = 13
+
+        login_page = LoginPage(driver)
+        login_page.open_page()
+        login_page.login("nguyencong", "123456")
+        time.sleep(2)
+
+        post_page = PostDetailPage(driver)
+        post_page.open_page(post_id)
+        time.sleep(2)
+
+        assert "Bài viết đã bị khóa, không thể bình luận." in post_page.get_locked_alert()
+
+        driver.save_screenshot("ActualResult/comment_locked_post.png")
