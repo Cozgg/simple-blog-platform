@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from blogapp.test.base import driver
+from blogapp.test.test_base import driver
 from blogapp.test.pages.LoginPage import LoginPage
 from blogapp.test.pages.RegisterPage import RegisterPage
 
@@ -25,6 +25,7 @@ def unique_username():
 def unique_email():
     return f"test{int(time.time() * 1000)}@gmail.com"
 
+@pytest.mark.selenium
 class TestRegisterSuccess:
     def test_register_success(self, driver):
         if not os.path.exists(AVATAR_PATH):
@@ -83,7 +84,7 @@ class TestRegisterSuccess:
         assert driver.find_elements(By.CSS_SELECTOR, "a[href='/logout']")
         driver.save_screenshot("ActualResult/register_then_login.png")
 
-
+@pytest.mark.selenium
 class TestRegisterValidation:
 
     def test_password_mismatch(self, driver):

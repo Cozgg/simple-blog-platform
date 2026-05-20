@@ -105,7 +105,52 @@ if __name__ == '__main__':
                 title="Lộ trình trở thành Fullstack Developer",
                 content="Để trở thành Fullstack Developer, bạn cần học tốt cả Frontend (React/Vue) và Backend (Flask/Node.js), kèm theo kiến thức về database như SQL Server hoặc MongoDB.",
                 user_id=users[2].id
-            )
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 2",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 3",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 4",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 5",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 6",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 7",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 8",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 9",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 10",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+            ),
         ]
 
         db.session.add_all(posts)

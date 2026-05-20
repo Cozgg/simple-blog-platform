@@ -18,6 +18,8 @@ def get_users(id = None):
 
 def get_posts(kw=None, id=None, page=None, user_id=None):
     query = Post.query.order_by(Post.created_date.desc())
+    if user_id:
+        query = query.filter(Post.user_id == user_id).order_by(Post.is_pinned.desc())
     if id:
         return Post.query.get(id)
     if kw:

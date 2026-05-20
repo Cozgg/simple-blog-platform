@@ -1,5 +1,4 @@
 import time
-import os
 import pytest
 from blogapp.test.base import driver
 from selenium.webdriver.common.by import By
@@ -8,6 +7,7 @@ from blogapp.test.pages.LoginPage import LoginPage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+@pytest.mark.selenium
 class TestCommentPost:
     def test_add_comment_success(self, driver):
         post_id = 1
@@ -61,8 +61,6 @@ class TestCommentPost:
         post_page.click_reply_button()
         time.sleep(1)
 
-        driver.execute_script("window.scrollBy(0, 500);")
-        time.sleep(0.5)
 
         reply_content = "Đây là nội dung phản hồi cho bình luận đầu tiên"
         post_page.enter_reply_text(reply_content)
@@ -149,7 +147,7 @@ class TestCommentPost:
 
         post_page.enter_comment("comment5")
         post_page.submit_comment()
-        time.sleep(1)
+        time.sleep(10)
 
         post_page.enter_comment("comment6")
         post_page.submit_comment()
@@ -193,7 +191,7 @@ class TestCommentPost:
         assert initial_count == post_page.get_comment_count()
 
     def test_reply_comment_lester_than_5_character(self, driver):
-        post_id = 3
+        post_id = 1
         login_page = LoginPage(driver)
         login_page.open_page()
         login_page.login("canhhuynh", "123456")
@@ -219,6 +217,7 @@ class TestCommentPost:
         driver.save_screenshot("ActualResult/reply_comment_chars_invalid.png")
 
         assert initial_count == post_page.get_comment_count()
+
 
     def test_comment_without_login(self, driver):
         post_id = 3
