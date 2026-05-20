@@ -22,12 +22,10 @@ AVATAR_PATH = os.path.abspath(
 def unique_username():
     return f"user{int(time.time() * 1000)}"
 
-
 def unique_email():
     return f"test{int(time.time() * 1000)}@gmail.com"
 
 class TestRegisterSuccess:
-
     def test_register_success(self, driver):
         if not os.path.exists(AVATAR_PATH):
             pytest.skip("Khong tim thay file anh test")
@@ -35,7 +33,7 @@ class TestRegisterSuccess:
         reg_page = RegisterPage(driver)
         reg_page.open_page()
         username = unique_username()
-        reg_page.register(
+        reg_page.fill_form(
             name="Nguoi Dung Test",
             username=username,
             email=unique_email(),
@@ -43,7 +41,8 @@ class TestRegisterSuccess:
             confirm="Test1234",
             avatar_path=AVATAR_PATH,
         )
-
+        driver.save_screenshot("ActualResult/before_lick_register_btn.png")
+        reg_page.submit()
         try:
             WebDriverWait(driver, 15).until(EC.url_contains("/login"))
         except Exception:
@@ -85,7 +84,7 @@ class TestRegisterSuccess:
         driver.save_screenshot("ActualResult/register_then_login.png")
 
 
-class TestRegisterServerValidation:
+class TestRegisterValidation:
 
     def test_password_mismatch(self, driver):
         reg_page = RegisterPage(driver)
@@ -170,9 +169,6 @@ class TestRegisterServerValidation:
         time.sleep(1)
         assert reg_page.get_error_message() is not None
         driver.save_screenshot("ActualResult/register_duplicate_username.png")
-
-
-class TestRegisterClientValidation:
 
     def test_empty_name_prevents_submit(self, driver):
         reg_page = RegisterPage(driver)

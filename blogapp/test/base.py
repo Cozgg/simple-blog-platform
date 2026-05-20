@@ -42,7 +42,7 @@ def test_session(test_app):
     db.session.rollback()
 
 
-#
+
 # @pytest.fixture
 # def driver():
 #     service = Service(executable_path='../../.venv/chromedriver.exe')
