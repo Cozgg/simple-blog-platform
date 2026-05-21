@@ -43,7 +43,6 @@ def driver():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")
 
-    # For CI environment (Ubuntu with Chromium)
     if os.getenv('CHROME_DRIVER_PATH'):
         from selenium.webdriver.chrome.service import Service
         service = Service(os.getenv('CHROME_DRIVER_PATH'))
