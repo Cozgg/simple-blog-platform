@@ -8,15 +8,17 @@
         <h1 class="fw-bold text-dark display-6 mb-2">
             <i class="bi bi-person-circle me-2"></i>TRANG CÁ NHÂN
         </h1>
-        <div class="mx-auto" style="width: 80px; height: 3px; background: linear-gradient(90deg, #0d6efd, #198754);"></div>
+        <div class="mx-auto"
+             style="width: 80px; height: 3px; background: linear-gradient(90deg, #0d6efd, #198754);"></div>
     </div>
     <div class="form-floating mb-3">
         <div class="d-flex align-items-center">
             {% if user.avatar %}
-            <img src="{{ user.avatar }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ user.name }}">
+            <img src="{{ user.avatar }}" class="rounded-circle me-3"
+                 style="width: 60px; height: 60px; object-fit: cover;" alt="{{ user.name }}">
             {% else %}
             <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                style="width: 60px; height: 60px; font-weight: bold; font-size: 24px;">
+                 style="width: 60px; height: 60px; font-weight: bold; font-size: 24px;">
                 {{ user.name[0].upper() }}
             </div>
             {% endif %}
@@ -29,16 +31,17 @@
 
     <h3 class="fw-bold mb-3 text-dark">
         {% if current_user.is_authenticated and current_user.id == user.id %}
-            Bài viết của bạn ({{ posts|length }})
+        Bài viết của bạn ({{ posts|length }})
         {% else %}
-            Bài viết của {{ user.name }} ({{ posts|length }})
+        Bài viết của {{ user.name }} ({{ posts|length }})
         {% endif %}
     </h3>
     <div class="row" id="post-list-container">
         {% for post in posts %}
         <div id="post-{{ post.id }}" class="card mb-3 {% if post.is_pinned %}border-primary{% endif %}">
             {% if post.image %}
-            <img src="{{ post.image }}" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="{{ post.title }}">
+            <img src="{{ post.image }}" class="card-img-top" style="max-height: 200px; object-fit: cover;"
+                 alt="{{ post.title }}">
             {% endif %}
             <div class="card-body">
                 <h5 class="card-title fw-bold text-dark">
@@ -57,12 +60,24 @@
                     Đăng vào: {{ post.created_date.strftime('%d/%m/%Y %H:%M') }} | Bình luận: {{ post.comments|length }}
                 </p>
                 <div>
-                    <a href="{{url_for('post_detail_view', post_id=post.id)}}" class="btn btn-sm btn-outline-dark">Xem chi tiết</a>
+                    <a href="{{url_for('post_detail_view', post_id=post.id)}}" class="btn btn-sm btn-outline-dark">Xem
+                        chi tiết</a>
 
                     {% if current_user.is_authenticated and current_user.id == post.user_id %}
-                        {% if not post.is_locked and not post.is_pinned %}
-                        <button type="button" class="btn btn-sm btn-danger" onclick="deletePost({{ post.id }})">Xóa</button>
-                        {% endif %}
+                    <button type="button"
+                            class="btn btn-sm {% if post.is_pinned %}btn-warning{% else %}btn-outline-warning text-dark{% endif %}"
+                            onclick="{% if post.is_pinned %}unpinPost({{ post.id }}){% else %}pinPost({{ post.id }}){% endif %}">
+                        {% if post.is_pinned %}Bỏ ghim{% else %}Ghim bài{% endif %}
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-sm {% if post.is_locked %}btn-secondary{% else %}btn-outline-secondary text-dark{% endif %}"
+                            onclick="{% if post.is_locked %}unlockPost({{ post.id }}){% else %}lockPost({{ post.id }}){% endif %}">
+                        {% if post.is_locked %}Mở khóa{% else %}Khóa bài{% endif %}
+                    </button>
+                    {% if not post.is_locked and not post.is_pinned %}
+                    <button type="button" class="btn btn-sm btn-danger" onclick="deletePost({{ post.id }})">Xóa</button>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>

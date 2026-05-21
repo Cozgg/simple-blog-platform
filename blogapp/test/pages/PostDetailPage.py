@@ -33,6 +33,7 @@ class PostDetailPage(BasePage):
     MODAL_TITLE = (By.ID, "confirmTitle")
     MODAL_BODY = (By.ID, "confirmMessage")
     TOAST_BODY = (By.ID, "toast-message")
+    ALERT_LOCKED_POST = (By.CSS_SELECTOR, ".alert.alert-warning")
 
     def open_page(self, post_id=None):
         self.open(f"{self.URL}{post_id}")
@@ -118,12 +119,10 @@ class PostDetailPage(BasePage):
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".comment-item button[onclick*='deleteComment']"))
         )
         delete_btn.click()
-        # Use JavaScript to directly show the modal
         self.driver.execute_script("const modal = new bootstrap.Modal(document.getElementById('globalConfirmModal')); modal.show();")
-        t.sleep(1)  # Wait for modal to appear
+        t.sleep(1) 
 
     def wait_for_confirm_modal(self):
-        # Wait for modal to have Bootstrap 'show' class (indicates it's visible)
         WebDriverWait(self.driver, 10).until(
             lambda d: d.find_element(*self.CONFIRM_MODAL).get_attribute('class') is not None and 'show' in d.find_element(*self.CONFIRM_MODAL).get_attribute('class')
         )
@@ -147,3 +146,6 @@ class PostDetailPage(BasePage):
     def get_toast_message(self):
         toast = WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located(self.TOAST_BODY))
         return toast.text
+
+    def get_locked_alert(self):
+        return self.find(*self.ALERT_LOCKED_POST).text

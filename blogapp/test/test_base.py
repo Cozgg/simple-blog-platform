@@ -4,7 +4,8 @@ import hashlib
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from blogapp import app, db
-from blogapp.models import User, UserRole, Post
+from blogapp.models import User, UserRole, Post, Comment
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
@@ -53,3 +54,80 @@ def driver():
 
     yield _driver
     _driver.quit()
+
+def create_post(
+    title="Test Post Valid Title",
+    user_id=1,
+    comments_count=0,
+    is_pinned=False,
+    is_locked=False
+):
+
+    post = Post(
+        title=title,
+        content="Mock content",
+        user_id=user_id,
+        is_pinned=is_pinned,
+        is_locked=is_locked
+    )
+
+    db.session.add(post)
+    db.session.flush()
+
+    comments = []
+
+    for i in range(comments_count):
+        c = Comment(
+            content=f"Comment {i}",
+            user_id=user_id,
+            post_id=post.id
+        )
+
+        comments.append(c)
+
+    db.session.add_all(comments)
+    db.session.commit()
+
+    return post
+
+@pytest.fixture
+def post_factory():
+
+    created_posts = []
+
+    def _create_post(
+        username="admin",
+        comments_count=0,
+        is_pinned=False,
+        is_locked=False
+    ):
+
+        with app.app_context():
+
+            user = User.query.filter_by(
+                username=username
+            ).first()
+
+            post = create_post(
+                user_id=user.id,
+                comments_count=comments_count,
+                is_pinned=is_pinned,
+                is_locked=is_locked
+            )
+
+            created_posts.append(post.id)
+
+            return post
+
+    yield _create_post
+
+    with app.app_context():
+
+        for post_id in created_posts:
+
+            post = Post.query.get(post_id)
+
+            if post:
+                db.session.delete(post)
+
+        db.session.commit()

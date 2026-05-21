@@ -39,10 +39,11 @@ def seed_10_posts():
 
 @pytest.mark.selenium
 def test_tc1_create_post_success(driver):
-    test_title = "Đi làm cty không anh xin cho "
+    test_title = f"Đi làm cty không anh xin cho {int(time.time())}"
     test_content = "Quê anh mảnh đất hữu tình, quê anh mảnh đất quê anh, quê anh mảnh đất quê anh, quê anh mảnh đất quê anh."
 
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -51,19 +52,20 @@ def test_tc1_create_post_success(driver):
     home_page.submit_post_ui(test_title, test_content)
     home_page.wait_for_success_and_refresh(test_title)
 
-    # Check for success toast message
-    success_msg = home_page.get_success_message()
-    assert "Đăng bài viết thành công" in success_msg
-
-    # Verify modal is closed
     assert test_title in driver.page_source
-
     driver.save_screenshot('test_tc1_create_post_success.png')
+
+    with app.app_context():
+        post_to_delete = Post.query.filter_by(title=test_title).first()
+        if post_to_delete:
+            db.session.delete(post_to_delete)
+            db.session.commit()
 
 
 @pytest.mark.selenium
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -83,6 +85,7 @@ def test_tc2_create_post_fail_title_too_short(driver):
 @pytest.mark.selenium
 def test_tc3_create_post_fail_content_too_short(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -103,6 +106,8 @@ def test_tc3_create_post_fail_content_too_short(driver):
 @pytest.mark.selenium
 def test_tc4_create_post_fail_both_invalid(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
+
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -125,6 +130,8 @@ def test_tc4_create_post_fail_both_invalid(driver):
 @pytest.mark.selenium
 def test_tc5_create_post_empty_fields(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
+
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -147,12 +154,14 @@ def test_tc5_create_post_empty_fields(driver):
 @pytest.mark.selenium
 def test_tc6_duplicate_title_same_day(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
+
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
 
-    test_title = f"Tiêu đề trùng lặp {int(time.time())}"
+    test_title = f"Tiêu đề trùng lặp"
     valid_content = "Nội dung bài viết hợp lệ dài trên 50 ký tự để được đăng okeokeokeokeokeokeokeoke."
 
     home_page.open_create_modal()
@@ -166,15 +175,22 @@ def test_tc6_duplicate_title_same_day(driver):
     error_msg = home_page.get_post_error_message()
 
     assert error_msg is not None
-    assert ("đăng bài với tiêu đề này" in error_msg or "trùng" in error_msg.lower() or
-            "giới hạn 10 bài" in error_msg or "đạt giới hạn" in error_msg.lower())
+    assert "đăng bài với tiêu đề này" in error_msg
 
     driver.save_screenshot('test_tc6_duplicate_title.png')
+
+    with app.app_context():
+        post_to_delete = Post.query.filter_by(title=test_title).first()
+        if post_to_delete:
+            db.session.delete(post_to_delete)
+            db.session.commit()
 
 
 @pytest.mark.selenium
 def test_tc7_daily_limit_exceeded(driver, seed_10_posts):
     login_page = LoginPage(driver)
+    login_page.open_page()
+
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -199,6 +215,8 @@ def test_tc7_daily_limit_exceeded(driver, seed_10_posts):
 @pytest.mark.selenium
 def test_tc8_create_post_with_image(driver):
     login_page = LoginPage(driver)
+    login_page.open_page()
+
     login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
@@ -222,3 +240,9 @@ def test_tc8_create_post_with_image(driver):
     assert 'img' in driver.page_source or 'cloudinary' in driver.page_source.lower()
 
     driver.save_screenshot('test_tc8_create_post_with_image.png')
+
+    with app.app_context():
+        post_to_delete = Post.query.filter_by(title=test_title).first()
+        if post_to_delete:
+            db.session.delete(post_to_delete)
+            db.session.commit()

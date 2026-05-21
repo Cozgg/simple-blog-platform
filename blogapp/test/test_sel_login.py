@@ -22,22 +22,11 @@ class TestLoginSuccess:
         login_page.open_page()
         login_page.login("ngocson", "123456")
         time.sleep(2)
-
         assert driver.current_url == HOME_URL
-
         logout_links = driver.find_elements(*LOGOUT_LINK)
         assert len(logout_links) > 0
-
         driver.save_screenshot("ActualResult/login_success_user.png")
-
-    def test_login_shows_username_in_navbar(self, driver):
-        login_page = LoginPage(driver)
-        login_page.open_page()
-        login_page.login("ngocson", "123456")
-        time.sleep(2)
-
         assert "ngocson" in driver.page_source
-        driver.save_screenshot("ActualResult/login_username_navbar.png")
 
     def test_login_then_logout_redirects_to_login(self, driver):
         login_page = LoginPage(driver)

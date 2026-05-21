@@ -160,3 +160,46 @@ function submitPost(e) {
             }
         });
 }
+
+function unpinPost(postId){
+    fetch(`/api/posts/${postId}/unpinned`,{
+        method: 'PATCH',
+    }).then(res => res.json()).then(data =>{
+        if(data.status == 200){
+            showToast(data.msg)
+            setTimeout(() =>  location.reload(), 1000)
+        }
+    })
+}
+function pinPost(postId){
+    fetch(`/api/posts/${postId}/pinned`,{
+        method: 'PATCH',
+    }).then(res => res.json()).then(data =>{
+        if(data.status == 200){
+            showToast(data.msg)
+            setTimeout(() =>  location.reload(), 1000)
+        }
+    })
+}
+function unlockPost(postId){
+    fetch(`/api/posts/${postId}/unlocked`,{
+        method: 'PATCH',
+    }).then(res => res.json()).then(data =>{
+        if(data.status == 200){
+            showToast(data.msg)
+            setTimeout(() =>  location.reload(), 1000)
+        }
+    })
+}
+
+function lockPost(postId){
+    fetch(`/api/posts/${postId}/locked`,{
+        method: 'PATCH',
+    }).then(res => res.json()).then(data =>{
+        if(data.status == 200){
+            showToast(data.msg)
+            setTimeout(() =>  location.reload(), 1000)
+        }
+    })
+}
+

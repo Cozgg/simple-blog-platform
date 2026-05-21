@@ -8,7 +8,7 @@ from blogapp.test.test_base import driver
 from blogapp.test.base import test_app
 
 def create_post_with_comments(
-    title="Test Post Valid Title",
+    title="Tiêu đề bài viết qá hợp lí",
     user_id=1,
     comments_count=0,
     is_pinned=False,
@@ -17,7 +17,7 @@ def create_post_with_comments(
 ):
     post = Post(
         title=title,
-        content="Mock content for delete comment test",
+        content="data để test xóa comment nha okeoekoekokeokeokeoke",
         user_id=user_id,
         is_pinned=is_pinned,
         is_locked=is_locked
@@ -80,6 +80,74 @@ def post_with_comment_factory():
 
             created_posts.append(post.id)
 
+            return post
+
+    yield _create_post
+
+    with app.app_context():
+        for post_id in created_posts:
+            post = Post.query.get(post_id)
+            if post:
+                Comment.query.filter_by(post_id=post_id).delete()
+                db.session.delete(post)
+        db.session.commit()
+
+
+@pytest.fixture
+def seed_post_with_comments():
+    created_posts = []
+
+    def _create_post(
+        username="ngocson",
+        comments_count=1,
+        is_pinned=False,
+        is_locked=False,
+        with_replies=False
+    ):
+        with app.app_context():
+            user = User.query.filter_by(username=username).first()
+            
+            if not user:
+                pytest.skip(f"Không thấy user '{username}' trong cơ sở dữ liệu.")
+
+            post = Post(
+                title="Tiêu đề hợp lệ okeokeokeokeokeoke",
+                content="data để test delete comment vừa đủ để đăng bài",
+                user_id=user.id,
+                is_pinned=is_pinned,
+                is_locked=is_locked
+            )
+
+            db.session.add(post)
+            db.session.flush()
+
+            comments = []
+
+            for i in range(comments_count):
+                c = Comment(
+                    content=f"Comment {i} cho xóa test",
+                    user_id=user.id,
+                    post_id=post.id
+                )
+                comments.append(c)
+
+            db.session.add_all(comments)
+            db.session.flush()
+
+            if with_replies and comments_count > 0:
+                replies_count = 2 
+                for i in range(replies_count):
+                    reply = Comment(
+                        content=f"Reply {i} cho comment 0",
+                        user_id=user.id,
+                        post_id=post.id,
+                        parent_id=comments[0].id
+                    )
+                    comments.append(reply)
+
+            db.session.commit()
+
+            created_posts.append(post.id)
             return post
 
     yield _create_post
@@ -320,7 +388,6 @@ class TestSelDeleteComment:
         modal_text = post_page.get_modal_body_text()
         assert "Bạn có chắc chắn muốn xóa bình luận này?" in modal_text
 
-
     def test_1_owner_confirm_delete(self, driver, post_with_comment_factory):
         post = post_with_comment_factory(username="canhhuynh", comments_count=1, with_replies=True)
         post_id = post.id
@@ -395,3 +462,106 @@ class TestSelDeleteComment:
         assert new_count == initial_count
 
 
+@pytest.mark.selenium
+def test_tc3_owner_click_delete_shows_modal(driver, seed_post_with_comments):
+    post = seed_post_with_comments(username="canhhuynh", comments_count=1)
+    post_id = post.id
+
+    login = LoginPage(driver)
+    login.open_page()
+    login.login("canhhuynh", "123456")
+
+    post_page = PostDetailPage(driver)
+    post_page.open_page(post_id)
+
+    post_page.click_delete_first_comment_from_other_user()
+    post_page.wait_for_confirm_modal()
+
+    driver.save_screenshot('test_tc3_delete_modal_shows.png')
+
+    modal_text = post_page.get_modal_body_text()
+    assert "Bạn có chắc chắn muốn xóa bình luận này?" in modal_text
+
+
+@pytest.mark.selenium
+def test_tc3_1_owner_confirm_delete(driver, seed_post_with_comments):
+    post = seed_post_with_comments(username="canhhuynh", comments_count=1, with_replies=True)
+    post_id = post.id
+
+    login = LoginPage(driver)
+    login.open_page()
+    login.login("canhhuynh", "123456")
+
+    post_page = PostDetailPage(driver)
+    post_page.open_page(post_id)
+
+    initial_count = post_page.get_comment_count()
+
+    post_page.click_delete_first_comment_from_other_user()
+    post_page.wait_for_confirm_modal()
+
+    post_page.click_confirm_delete()
+
+    toast_msg = post_page.get_toast_message()
+    assert "Đã xóa bình luận" in toast_msg
+    assert "phản hồi liên quan" in toast_msg
+
+    driver.save_screenshot('test_tc3_1_confirm_delete.png')
+
+    time.sleep(1.5)
+
+    new_count = post_page.get_comment_count()
+    assert new_count < initial_count
+    assert new_count == 0
+
+
+@pytest.mark.selenium
+def test_tc3_2_owner_cancel_delete(driver, seed_post_with_comments):
+    post = seed_post_with_comments(username="canhhuynh", comments_count=1)
+    post_id = post.id
+
+    login = LoginPage(driver)
+    login.open_page()
+    login.login("canhhuynh", "123456")
+
+    post_page = PostDetailPage(driver)
+    post_page.open_page(post_id)
+
+    initial_count = post_page.get_comment_count()
+
+    post_page.click_delete_first_comment_from_other_user()
+    post_page.wait_for_confirm_modal()
+
+    post_page.click_cancel_delete()
+    post_page.wait_for_modal_to_close()
+
+    new_count = post_page.get_comment_count()
+    assert new_count == initial_count
+
+    driver.save_screenshot('test_tc3_2_cancel_delete.png')
+
+
+@pytest.mark.selenium
+def test_tc3_3_owner_close_delete_modal(driver, seed_post_with_comments):
+    post = seed_post_with_comments(username="canhhuynh", comments_count=1)
+    post_id = post.id
+
+    login = LoginPage(driver)
+    login.open_page()
+    login.login("canhhuynh", "123456")
+
+    post_page = PostDetailPage(driver)
+    post_page.open_page(post_id)
+
+    initial_count = post_page.get_comment_count()
+
+    post_page.click_delete_first_comment_from_other_user()
+    post_page.wait_for_confirm_modal()
+
+    post_page.click_close_modal()
+    post_page.wait_for_modal_to_close()
+
+    new_count = post_page.get_comment_count()
+    assert new_count == initial_count
+
+    driver.save_screenshot('test_tc3_3_close_delete_modal.png')

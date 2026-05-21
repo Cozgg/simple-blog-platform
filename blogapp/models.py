@@ -82,7 +82,10 @@ if __name__ == '__main__':
                  email="canh@gmail.com", avatar=default_avt),
             User(name='Kim Nhân', username='nhanpham',
                  password=hash_pass("123456"), user_role=UserRole.USER,
-                 email="nhan@gmail.com", avatar=default_avt)
+                 email="nhan@gmail.com", avatar=default_avt),
+            User(name='Nguyễn Công', username='nguyencong',
+                 password=hash_pass("123456"), user_role=UserRole.USER,
+                 email="nguyenvancong72033@gmail.com", avatar=default_avt)
         ]
 
         db.session.add(admin_user)
@@ -150,6 +153,12 @@ if __name__ == '__main__':
                 title="Hướng dẫn học Python Flask cho người mới 10",
                 content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
                 user_id=users[0].id,
+            ),
+            Post(
+                title="Hướng dẫn học Python Flask cho người mới 11",
+                content="Đây là nội dung bài viết hướng dẫn về Flask. Flask là một micro-framework cực kỳ mạnh mẽ và linh hoạt dành cho các nhà phát triển web muốn bắt đầu nhanh chóng.",
+                user_id=users[0].id,
+                is_locked=True
             ),
         ]
 
