@@ -1,0 +1,78 @@
+name: Selenium Tests
+ 
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+ 
+jobs:
+  selenium-tests:
+    runs-on: ubuntu-latest
+ 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: blogdb
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+ 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+ 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+ 
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov selenium webdriver-manager
+ 
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser chromium-chromedriver
+ 
+    - name: Set up environment variables
+      run: |
+        echo "DATABASE_URL=mysql+pymysql://root:root@localhost/blogdb?charset=utf8mb4" >> $GITHUB_ENV
+        echo "SECRET_KEY=test-secret-key-for-ci" >> $GITHUB_ENV
+ 
+    - name: Wait for MySQL
+      run: |
+        sleep 10
+ 
+    - name: Initialize database
+      run: |
+        python -c "from blogapp import app, db; app.app_context().push(); db.create_all(); print('Database initialized')"
+ 
+    - name: Start Flask app in background
+      run: |
+        python run.py &
+        sleep 10
+ 
+    - name: Run Selenium tests
+      run: |
+        python -m pytest blogapp/test/test_sel_*.py -v --tb=short -m selenium
+      env:
+        SELENIUM_HEADLESS: true
+        CHROME_PATH: /usr/bin/chromium-browser
+        CHROMEDRIVER_PATH: /usr/bin/chromedriver
+ 
+    - name: Upload screenshots on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: selenium-screenshots
+        path: *.png
+        retention-days: 7
+ 
+
