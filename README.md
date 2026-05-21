@@ -5,7 +5,7 @@ Python Flask MySQL Selenium Cloudinary
 ## Tóm tắt kết quả kiểm thử
 | Số lượng unit test | Số lượng testcase | Tỉ lệ bao phủ mã nguồn (dao) |
 |-------------------|-------------------|-----------------------------|
-| 60/60 (Unit + API) | 70/70 (Selenium UI) | 85% |
+| 60/60 (Unit + API) | 25/25 (Selenium UI) | 86% |
 
 ## Giới thiệu
 Simple Blog Platform là ứng dụng web được phát triển bằng Flask, giúp quản lý và đăng tải bài viết, với tính năng xác thực người dùng, quản lý bài viết, và tích hợp Cloudinary để lưu trữ hình ảnh.
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 ```
 
 ### 4. Cấu hình Cloudinary
-Mở tệp `blogapp/__init__.py` và cấu hình Cloudinary:
+Cloudinary đã được cấu hình sẵn trong `blogapp/__init__.py`. Nếu cần thay đổi, mở tệp và cập nhật:
 
 ```python
 cloudinary.config(cloud_name='your_cloud_name',
@@ -57,12 +57,12 @@ cloudinary.config(cloud_name='your_cloud_name',
 
 ### Cách 1: Sử dụng Flask
 ```bash
-python blogapp/index.py
+python -m blogapp.index
 ```
 
-### Cách 2: Sử dụng pytest (cho testing)
+### Cách 2: Sử dụng flask run
 ```bash
-pytest blogapp/test/
+flask run
 ```
 
 ## Đăng nhập mặc định
@@ -90,12 +90,18 @@ Chạy kiểm thử với coverage:
 pytest blogapp/test/ --cov=blogapp --cov-report=html
 ```
 
+**Lưu ý quan trọng cho Selenium tests:**
+- Flask app phải đang chạy trước khi chạy Selenium tests
+- Mở terminal khác và chạy: `python -m blogapp.index` hoặc `flask run`
+- Sau đó chạy Selenium tests ở terminal khác
+
 ### Cấu trúc kiểm thử
 Dự án sử dụng pytest và Selenium để thực hiện các bài kiểm thử UI và kiểm thử đơn vị. Các bài kiểm thử được tổ chức theo cấu trúc sau:
 
 - `blogapp/test/`: Chứa các lớp kiểm thử
-- `blogapp/test/pages/`: Page Object Pattern cho Selenium
+- `blogapp/test/pages/`: Page Object Pattern cho Selenium (BasePage, HomePage, LoginPage, PostDetailPage, ProfilePage, RegisterPage, UserPostPage)
 - `blogapp/test/test_base.py`: Cấu hình cơ sở cho Selenium WebDriver
+- `blogapp/test/base.py`: Base test configuration
 
 ### Cấu hình kiểm thử
 - Các kiểm thử sử dụng `conftest.py` để khởi tạo WebDriver
@@ -114,6 +120,48 @@ Dự án sử dụng pytest và Selenium để thực hiện các bài kiểm th
   - TC6: Tiêu đề trùng lặp trong ngày
   - TC7: Giới hạn 10 bài/ngày
   - TC8: Đăng bài có hình ảnh
+
+- `test_sel_delete_comment.py`: Kiểm thử UI xóa bình luận
+  - test_modal_delete_comment: Hiển thị modal xóa bình luận
+  - test_modal_delete_reply_comment: Hiển thị modal xóa bình luận phản hồi
+  - test_owner_click_delete_shows_modal: Owner click hiển thị modal xóa
+  - test_1_owner_confirm_delete: Owner xác nhận xóa bình luận
+  - test_2_owner_cancel_delete: Owner hủy xóa bình luận
+  - test_tc3_owner_click_delete_shows_modal: TC3 owner click hiển thị modal
+  - test_tc3_1_owner_confirm_delete: TC3 owner xác nhận xóa
+  - test_tc3_2_owner_cancel_delete: TC3 owner hủy xóa
+  - test_tc3_3_owner_close_delete_modal: TC3 owner đóng modal
+
+- `test_sel_profile.py`: Kiểm thử UI profile
+  - test_view_other_user_profile: Xem profile người khác
+  - test_view_other_user_posts: Xem bài viết người khác
+  - test_view_own_profile: Xem profile của chính mình
+
+- `test_sel_login.py`: Kiểm thử UI đăng nhập
+  - test_login_success: Đăng nhập thành công
+  - test_login_fail_username: Sai tên đăng nhập
+  - test_login_fail_password: Sai mật khẩu
+
+- `test_sel_register.py`: Kiểm thử UI đăng ký
+  - test_register_success: Đăng ký thành công
+  - test_register_fail_username_exists: Tên đăng nhập đã tồn tại
+  - test_register_fail_password_mismatch: Mật khẩu không khớp
+
+- `test_sel_add_comment.py`: Kiểm thử UI thêm bình luận
+  - test_add_comment_success: Thêm bình luận thành công
+  - test_add_comment_fail_too_short: Bình luận quá ngắn
+  - test_add_comment_fail_spam: Chống spam bình luận
+
+- `test_sel_delete_post.py`: Kiểm thử UI xóa bài viết
+  - test_delete_post_success: Xóa bài viết thành công
+  - test_delete_post_with_confirm: Xóa bài viết có xác nhận
+  - test_delete_pinned_post: Không xóa bài viết ghim
+
+- `test_sel_pin_lock_post.py`: Kiểm thử UI ghim/khóa bài viết
+  - test_pin_post_success: Ghim bài viết thành công
+  - test_unpin_post_success: Bỏ ghim bài viết
+  - test_lock_post_success: Khóa bài viết thành công
+  - test_unlock_post_success: Mở khóa bài viết
 
 #### Unit Tests - Comment Functionality
 - `test_add_comment.py`: Kiểm thử DAO thêm bình luận
@@ -178,6 +226,14 @@ Dự án sử dụng pytest và Selenium để thực hiện các bài kiểm th
   - test_delete_post_success_with_confirmed: Xóa bài viết có xác nhận
   - test_delete_post_error: Các lỗi khi xóa bài viết (parameterized)
 
+- `test_api_pin_lock_post.py`: Kiểm thử API ghim/khóa bài viết
+  - test_pin_post_success: Ghim bài viết thành công
+  - test_unpin_post_success: Bỏ ghim bài viết
+  - test_lock_post_success: Khóa bài viết thành công
+  - test_unlock_post_success: Mở khóa bài viết
+  - test_pin_post_error: Các lỗi khi ghim bài viết (parameterized)
+  - test_lock_post_error: Các lỗi khi khóa bài viết (parameterized)
+
 ### Phương pháp kiểm thử
 - **Selenium Test**: Kiểm thử UI với Page Object Pattern
 - **Unit Test**: Kiểm thử đơn vị cơ bản với pytest
@@ -189,10 +245,11 @@ Dự án sử dụng pytest và Selenium để thực hiện các bài kiểm th
 ```python
 def test_tc1_create_post_success(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page()
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open()
     home_page.open_create_modal()
 
     test_title = f"Tiêu đề bài viết {int(time.time())}"
@@ -216,14 +273,15 @@ def test_save_comment_success(sample_data, test_session):
     assert saved_comment.post_id == post_id
 ```
 
-#### Kiểm thử API:
+#### Kiểm thử UI validation:
 ```python
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
-    login_page.login(BASE_URL, "ngocson", "123456")
+    login_page.open_page()
+    login_page.login("ngocson", "123456")
 
     home_page = HomePage(driver)
-    home_page.open(f"{BASE_URL}/")
+    home_page.open()
     home_page.open_create_modal()
     home_page.submit_post_ui("Ngắn", "Nội dung đủ dài để đăng bài viết okeokeokeokeokeoke")
 
@@ -273,14 +331,42 @@ simple-blog-platform/
 │   ├── decorators.py        # Custom decorators
 │   ├── index.py             # Main routes and controllers
 │   ├── models.py            # SQLAlchemy models
+│   ├── utils.py             # Utility functions
 │   ├── static/              # Static files (CSS, JS, images)
 │   ├── templates/           # HTML templates
 │   └── test/                # Test directory
 │       ├── pages/           # Page Object Pattern
-│       ├── test_base.py     # Base test configuration
-│       └── test_sel_create_post.py  # Selenium tests
+│       │   ├── BasePage.py
+│       │   ├── HomePage.py
+│       │   ├── LoginPage.py
+│       │   ├── PostDetailPage.py
+│       │   ├── ProfilePage.py
+│       │   ├── RegisterPage.py
+│       │   └── UserPostPage.py
+│       ├── base.py          # Base test configuration
+│       ├── test_base.py     # Selenium WebDriver configuration
+│       ├── test_sel_create_post.py     # Selenium tests for creating posts
+│       ├── test_sel_delete_comment.py   # Selenium tests for deleting comments
+│       ├── test_sel_profile.py          # Selenium tests for profile pages
+│       ├── test_sel_login.py            # Selenium tests for login
+│       ├── test_sel_register.py         # Selenium tests for registration
+│       ├── test_sel_add_comment.py      # Selenium tests for adding comments
+│       ├── test_sel_delete_post.py      # Selenium tests for deleting posts
+│       ├── test_sel_pin_lock_post.py    # Selenium tests for pinning/locking posts
+│       ├── test_add_comment.py           # Unit tests for adding comments
+│       ├── test_delete_comment.py       # Unit tests for deleting comments
+│       ├── test_post.py                 # Unit tests for posts
+│       ├── test_search_posts.py         # Unit tests for searching posts
+│       ├── test_get_user.py             # Unit tests for user info
+│       ├── test_api_post.py             # API tests for posts
+│       ├── test_api_add_comment.py      # API tests for adding comments
+│       ├── test_api_delete_comment.py   # API tests for deleting comments
+│       ├── test_api_delete_post.py      # API tests for deleting posts
+│       └── test_api_pin_lock_post.py    # API tests for pinning/locking posts
 ├── requirements.txt        # Python dependencies
-└── README.md               # Project documentation
+├── pytest.ini             # Pytest configuration
+├── .env                    # Environment variables
+└── README.md              # Project documentation
 ```
 
 ## Công nghệ sử dụng
