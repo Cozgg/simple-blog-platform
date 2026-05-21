@@ -126,6 +126,54 @@ def add_post(title, content, user_id, image=None):
         db.session.rollback()
         raise Exception("Lỗi hệ thống: " + str(e))
 
+def pinned_post(post_id, current_user):
+    p = Post.query.get(post_id)
+    if not p:
+        return False, 'Bài viết không tồn tại'
+    if p.is_pinned:
+        return False, 'Bài viết đã được ghim'
+    if p.user_id != current_user.id:
+        return False, 'Bài viết không phải của bạn, không thể ghim'
+    p.is_pinned = True
+    db.session.commit()
+    return True, "Ghim thành công"
+
+def unpinned_post(post_id, current_user):
+    p = Post.query.get(post_id)
+    if not p:
+        return False, 'Bài viết không tồn tại'
+    if p.user_id != current_user.id:
+        return False, 'Bài viết không phải của bạn, không thể bỏ ghim'
+    if not p.is_pinned:
+        return False, 'Bài viết chưa bị ghim, không thể bỏ ghim'
+    p.is_pinned = False
+    db.session.commit()
+    return True, "Bỏ ghim thành công"
+
+def lock_post(post_id, current_user):
+    p = Post.query.get(post_id)
+    if not p:
+        return False, 'Bài viết không tồn tại'
+    if p.is_locked:
+        return False, 'Bài viết đã bị khóa'
+    if p.user_id != current_user.id:
+        return False, 'Bài viết không phải của bạn, không thể khóa'
+    p.is_locked = True
+    db.session.commit()
+    return True, "Khóa thành công"
+
+def unlock_post(post_id, current_user):
+    p = Post.query.get(post_id)
+    if not p:
+        return False, 'Bài viết không tồn tại'
+    if p.user_id != current_user.id:
+        return False, 'Bài viết không phải của bạn, không thể mở khóa'
+    if not p.is_locked:
+        return False, 'Bài viết không bị khóa, không thể mở khóa'
+    p.is_locked = False
+    db.session.commit()
+    return True, "Mở khóa thành công"
+
 def check_post_locked(post_id):
     post = db.session.get(Post, post_id)
     if not post:

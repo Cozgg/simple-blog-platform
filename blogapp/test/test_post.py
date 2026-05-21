@@ -31,6 +31,8 @@ def sample_post(test_session, sample_users):
     p2 = Post(id=2, title='con meo trang va 10 con cho den', content='post content 2', user_id=user1.id, is_locked=False, is_pinned=False)
     p3 = Post(id=3, title='chuyen tinh cua 2 con meo', content='post content 3', user_id=user1.id, is_locked=False, is_pinned=False)
     p4 = Post(id=4, title='dien thoai gia re ???', content='post content 4', user_id=user1.id, is_locked=False, is_pinned=False)
+    p5 = Post(id=5, title='dien thoai gia re ??????', content='post content 5', user_id=user2.id, is_locked=False,
+              is_pinned=False)
     comments = []
     for i in range(1, 12):
         c = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p1.id, parent_id=None)
@@ -41,9 +43,9 @@ def sample_post(test_session, sample_users):
             c2 = Comment(content=f"comment {i}", user_id=user1.id if i % 2 == 0 else user2.id, post_id=p4.id, parent_id=None)
             comments.append(c2)
         comments.append(c)
-    test_session.add_all([p1, p2, p3, p4] + comments)
+    test_session.add_all([p1, p2, p3, p4, p5] + comments)
     test_session.commit()
-    return [p1, p2, p3, p4] + comments
+    return [p1, p2, p3, p4, p5] + comments
 
 
 @pytest.fixture
@@ -157,5 +159,119 @@ def test_count_posts(sample_post):
 def test_owner_post(sample_post):
     actual_post = dao.get_posts(user_id=1)
     assert len(actual_post) == 4
+
+def test_pinned_post(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    is_pinned, msg = dao.pinned_post(p.id, u)
+    assert is_pinned == True
+    assert msg == "Ghim thành công"
+
+def test_pinned_post_already_pinned(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    p.is_pinned = True
+    is_can_pinned, msg = dao.pinned_post(p.id, u)
+    assert is_can_pinned == False
+    assert msg == "Bài viết đã được ghim"
+
+def test_pinned_post_not_found(test_app, sample_users):
+    u = sample_users[0]
+    is_can_pinned, msg = dao.pinned_post(999, u)
+    assert is_can_pinned == False
+    assert msg == "Bài viết không tồn tại"
+
+def test_pinned_post_not_owner(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[4]
+    is_pinned, msg = dao.pinned_post(p.id, u)
+    assert is_pinned == False
+    assert msg == "Bài viết không phải của bạn, không thể ghim"
+
+def test_unpinned_post(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    p.is_pinned = True
+    is_pinned, msg = dao.unpinned_post(p.id, u)
+    assert is_pinned == True
+    assert msg == "Bỏ ghim thành công"
+
+def test_unpinned_post_already_unpinned(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    is_can_pinned, msg = dao.unpinned_post(p.id, u)
+    assert is_can_pinned == False
+    assert msg == "Bài viết chưa bị ghim, không thể bỏ ghim"
+
+def test_unpinned_post_not_found(test_app, sample_users):
+    u = sample_users[0]
+    is_can_pinned, msg = dao.unpinned_post(999, u)
+    assert is_can_pinned == False
+    assert msg == "Bài viết không tồn tại"
+
+def test_unpinned_post_not_owner(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[4]
+    is_pinned, msg = dao.unpinned_post(p.id, u)
+    assert is_pinned == False
+    assert msg == "Bài viết không phải của bạn, không thể bỏ ghim"
+
+def test_lock_post(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    is_locked, msg = dao.lock_post(p.id, u)
+    assert is_locked == True
+    assert msg == "Khóa thành công"
+
+def test_lock_post_already_locked(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    p.is_locked = True
+    is_can_locked, msg = dao.lock_post(p.id, u)
+    assert is_can_locked == False
+    assert msg == "Bài viết đã bị khóa"
+
+def test_lock_post_not_found(test_app, sample_users):
+    u = sample_users[0]
+    is_can_locked, msg = dao.lock_post(999, u)
+    assert is_can_locked == False
+    assert msg == "Bài viết không tồn tại"
+
+def test_lock_post_not_owner(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[4]
+    is_can_locked, msg = dao.lock_post(p.id, u)
+    assert is_can_locked == False
+    assert msg == "Bài viết không phải của bạn, không thể khóa"
+
+def test_unlock_post(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    p.is_locked = True
+    is_locked, msg = dao.unlock_post(p.id, u)
+    assert is_locked == True
+    assert msg == "Mở khóa thành công"
+
+def test_unlock_post_already_unlocked(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[0]
+    is_can_locked, msg = dao.unlock_post(p.id, u)
+    assert is_can_locked == False
+    assert msg == "Bài viết không bị khóa, không thể mở khóa"
+
+def test_unlock_post_not_found(test_app, sample_users):
+    u = sample_users[0]
+    is_can_locked, msg = dao.unlock_post(999, u)
+    assert is_can_locked == False
+    assert msg == "Bài viết không tồn tại"
+
+def test_unlock_post_not_owner(sample_post, sample_users):
+    u = sample_users[0]
+    p = sample_post[4]
+    is_can_locked, msg = dao.unlock_post(p.id, u)
+    assert is_can_locked == False
+    assert msg == "Bài viết không phải của bạn, không thể mở khóa"
+
+
 
 
