@@ -75,6 +75,86 @@ def register_routers(app):
                 "err_msg": "Lỗi hệ thống không xác định"
             })
 
+    @app.route('/api/posts/<int:post_id>/pinned', methods=['PATCH'])
+    def pin_post(post_id):
+        try:
+            is_pinned, msg = dao.pinned_post(post_id, current_user)
+            if is_pinned:
+                return jsonify({
+                    "status": 200,
+                    "msg": str(msg)
+                })
+            else:
+                return jsonify({
+                    "status": 400,
+                    "err_msg": str(msg)
+                })
+        except Exception as e:
+            return jsonify({
+                "status": 500,
+                "err_msg": str(e)
+            })
+
+    @app.route('/api/posts/<int:post_id>/unpinned', methods=['PATCH'])
+    def unpin_post(post_id):
+        try:
+            is_pinned, msg = dao.unpinned_post(post_id, current_user)
+            if is_pinned:
+                return jsonify({
+                    "status": 200,
+                    "msg": str(msg)
+                })
+            else:
+                return jsonify({
+                    "status": 400,
+                    "err_msg": str(msg)
+                })
+        except Exception as e:
+            return jsonify({
+                "status": 500,
+                "err_msg": str(e)
+            })
+
+    @app.route('/api/posts/<int:post_id>/locked', methods=['PATCH'])
+    def lock_post(post_id):
+        try:
+            is_locked, msg = dao.lock_post(post_id, current_user)
+            if is_locked:
+                return jsonify({
+                    "status": 200,
+                    "msg": str(msg)
+                })
+            else:
+                return jsonify({
+                    "status": 400,
+                    "err_msg": str(msg)
+                })
+        except Exception as e:
+            return jsonify({
+                "status": 500,
+                "err_msg": str(e)
+            })
+
+    @app.route('/api/posts/<int:post_id>/unlocked', methods=['PATCH'])
+    def unlock_post(post_id):
+        try:
+            is_locked, msg = dao.unlock_post(post_id, current_user)
+            if is_locked:
+                return jsonify({
+                    "status": 200,
+                    "msg": str(msg)
+                })
+            else:
+                return jsonify({
+                    "status": 400,
+                    "err_msg": str(msg)
+                })
+        except Exception as e:
+            return jsonify({
+                "status": 500,
+                "err_msg": str(e)
+            })
+
     @app.route('/post-detail/<int:post_id>', methods=['GET'])
     def post_detail_view(post_id):
         p = dao.get_posts(id=post_id)
