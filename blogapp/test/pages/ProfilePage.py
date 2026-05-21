@@ -17,10 +17,6 @@ class ProfilePage(BasePage):
     POST_COUNT = (By.CSS_SELECTOR, "h3.fw-bold")
     POST_TITLE = (By.CSS_SELECTOR, "h5.card-title")
     POST_LINK = (By.CSS_SELECTOR, "a.btn-outline-dark")
-    PAGINATION = (By.CSS_SELECTOR, "nav.pagination")
-    NEXT_PAGE_BTN = (By.CSS_SELECTOR, "#next-page-btn a")
-    PREV_PAGE_BTN = (By.CSS_SELECTOR, "#back-page-btn a")
-    PAGE_LINKS = (By.CSS_SELECTOR, ".page-item .page-link")
     
     def open_page(self, user_id=None):
         if user_id:
@@ -46,37 +42,3 @@ class ProfilePage(BasePage):
     def click_post_detail(self, index=0):
         links = self.finds(*self.POST_LINK)
         links[index].click()
-    
-    def has_pagination(self):
-        try:
-            self.find(*self.PAGINATION)
-            return True
-        except:
-            return False
-    
-    def click_next_page(self):
-        self.click(*self.NEXT_PAGE_BTN)
-        t.sleep(1)
-    
-    def click_prev_page(self):
-        self.click(*self.PREV_PAGE_BTN)
-        t.sleep(1)
-
-    def get_all_post(self):
-        while True:
-            self.driver.execute_script('window.scrollTo(0, 5000)')
-            time.sleep(1)
-            post_container = self.find(*self.POST_CONTAINER)
-            posts = post_container.find_elements(*self.POST_ITEM)
-            result = [p for p in posts]
-            try:
-                next_page_li = self.find(By.ID, "next-page-btn")
-
-                if "disabled" in next_page_li.get_attribute("class"):
-                    return result
-
-                next_link = next_page_li.find_element(By.TAG_NAME, "a")
-                next_link.click()
-                time.sleep(1)
-            except NoSuchElementException:
-                return result

@@ -119,12 +119,10 @@ class PostDetailPage(BasePage):
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".comment-item button[onclick*='deleteComment']"))
         )
         delete_btn.click()
-        # Use JavaScript to directly show the modal
         self.driver.execute_script("const modal = new bootstrap.Modal(document.getElementById('globalConfirmModal')); modal.show();")
-        t.sleep(1)  # Wait for modal to appear
+        t.sleep(1) 
 
     def wait_for_confirm_modal(self):
-        # Wait for modal to have Bootstrap 'show' class (indicates it's visible)
         WebDriverWait(self.driver, 10).until(
             lambda d: d.find_element(*self.CONFIRM_MODAL).get_attribute('class') is not None and 'show' in d.find_element(*self.CONFIRM_MODAL).get_attribute('class')
         )

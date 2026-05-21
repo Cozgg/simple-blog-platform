@@ -37,11 +37,10 @@ class HomePage(BasePage):
         self.open(url)
 
     def open_create_modal(self):
-        # Wait for button to be visible and clickable
         WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(self.MODAL_TRIGGER))
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(self.MODAL_TRIGGER))
         self.click(*self.MODAL_TRIGGER)
-        t.sleep(1)  # Wait for modal to appear
+        t.sleep(1)
         WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located(self.MODAL))
         t.sleep(0.5)
 
