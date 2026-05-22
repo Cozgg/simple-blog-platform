@@ -155,7 +155,7 @@ class TestPinPost:
         while True:
 
             driver.execute_script(
-                "window.scrollTo(0, document.body.scrollHeight)"
+                "window.scrollTo(0, 5000)"
             )
 
             posts = profile.finds(
@@ -187,7 +187,8 @@ class TestPinPost:
                 "a"
             )
 
-            next_link.click()
+            if next_link:
+                next_link.click()
 
             time.sleep(1)
 

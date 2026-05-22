@@ -381,6 +381,7 @@ class TestSelDeleteComment:
         login.login("canhhuynh", "123456")
 
         post_page = PostDetailPage(driver)
+        time.sleep(1)
         post_page.open_page(post_id)
 
         post_page.click_delete_first_comment_from_other_user()
@@ -417,14 +418,15 @@ class TestSelDeleteComment:
 
 
     def test_2_owner_cancel_delete(self, driver, post_with_comment_factory):
-        post = post_with_comment_factory(username="canhhuynh", comments_count=1)
+        post = post_with_comment_factory(username="ronaldo", comments_count=1)
         post_id = post.id
 
         login = LoginPage(driver)
         login.open_page()
-        login.login("canhhuynh", "123456")
+        login.login("ronaldo", "123456")
 
         post_page = PostDetailPage(driver)
+        time.sleep(1)
         post_page.open_page(post_id)
         time.sleep(1)
         initial_count = post_page.get_comment_count()
@@ -440,12 +442,12 @@ class TestSelDeleteComment:
 
 
     def test_tc3_3_owner_close_delete_modal(self, driver, post_with_comment_factory):
-        post = post_with_comment_factory(username="canhhuynh", comments_count=1)
+        post = post_with_comment_factory(username="ronaldo", comments_count=1)
         post_id = post.id
 
         login = LoginPage(driver)
         login.open_page()
-        login.login("canhhuynh", "123456")
+        login.login("ronaldo", "123456")
 
         post_page = PostDetailPage(driver)
         time.sleep(1)
@@ -464,14 +466,15 @@ class TestSelDeleteComment:
 
 @pytest.mark.selenium
 def test_tc3_owner_click_delete_shows_modal(driver, seed_post_with_comments):
-    post = seed_post_with_comments(username="canhhuynh", comments_count=1)
+    post = seed_post_with_comments(username="ronaldo", comments_count=1)
     post_id = post.id
 
     login = LoginPage(driver)
     login.open_page()
-    login.login("canhhuynh", "123456")
+    login.login("ronaldo", "123456")
 
     post_page = PostDetailPage(driver)
+    time.sleep(1)
     post_page.open_page(post_id)
 
     post_page.click_delete_first_comment_from_other_user()
@@ -485,12 +488,12 @@ def test_tc3_owner_click_delete_shows_modal(driver, seed_post_with_comments):
 
 @pytest.mark.selenium
 def test_tc3_1_owner_confirm_delete(driver, seed_post_with_comments):
-    post = seed_post_with_comments(username="canhhuynh", comments_count=1, with_replies=True)
+    post = seed_post_with_comments(username="ronaldo", comments_count=1, with_replies=True)
     post_id = post.id
 
     login = LoginPage(driver)
     login.open_page()
-    login.login("canhhuynh", "123456")
+    login.login("ronaldo", "123456")
 
     post_page = PostDetailPage(driver)
     post_page.open_page(post_id)
@@ -517,14 +520,15 @@ def test_tc3_1_owner_confirm_delete(driver, seed_post_with_comments):
 
 @pytest.mark.selenium
 def test_tc3_2_owner_cancel_delete(driver, seed_post_with_comments):
-    post = seed_post_with_comments(username="canhhuynh", comments_count=1)
+    post = seed_post_with_comments(username="ronaldo", comments_count=1)
     post_id = post.id
 
     login = LoginPage(driver)
     login.open_page()
-    login.login("canhhuynh", "123456")
+    login.login("ronaldo", "123456")
 
     post_page = PostDetailPage(driver)
+    time.sleep(1)
     post_page.open_page(post_id)
 
     initial_count = post_page.get_comment_count()
@@ -543,14 +547,15 @@ def test_tc3_2_owner_cancel_delete(driver, seed_post_with_comments):
 
 @pytest.mark.selenium
 def test_tc3_3_owner_close_delete_modal(driver, seed_post_with_comments):
-    post = seed_post_with_comments(username="canhhuynh", comments_count=1)
+    post = seed_post_with_comments(username="ronaldo", comments_count=1)
     post_id = post.id
 
     login = LoginPage(driver)
     login.open_page()
-    login.login("canhhuynh", "123456")
+    login.login("ronaldo", "123456")
 
     post_page = PostDetailPage(driver)
+    time.sleep(1)
     post_page.open_page(post_id)
 
     initial_count = post_page.get_comment_count()

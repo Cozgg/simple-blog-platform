@@ -20,18 +20,18 @@ class TestLoginSuccess:
     def test_login_success(self, driver):
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("ngocson", "123456")
+        login_page.login("antony", "123456")
         time.sleep(2)
         assert driver.current_url == HOME_URL
         logout_links = driver.find_elements(*LOGOUT_LINK)
         assert len(logout_links) > 0
         driver.save_screenshot("ActualResult/login_success_user.png")
-        assert "ngocson" in driver.page_source
+        assert "antony" in driver.page_source
 
     def test_login_then_logout_redirects_to_login(self, driver):
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("ngocson", "123456")
+        login_page.login("antony", "123456")
         time.sleep(2)
 
         driver.get(f"{BASE_URL}/logout")
@@ -45,7 +45,7 @@ class TestLoginFailure:
     def test_wrong_password(self, driver):
         login_page = LoginPage(driver)
         login_page.open_page()
-        login_page.login("ngocson", "SaiMatKhau99")
+        login_page.login("antony", "SaiMatKhau99")
         time.sleep(2)
 
         login_links = driver.find_elements(*LOGIN_LINK)

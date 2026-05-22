@@ -42,3 +42,22 @@ class ProfilePage(BasePage):
     def click_post_detail(self, index=0):
         links = self.finds(*self.POST_LINK)
         links[index].click()
+
+    def get_all_post(self):
+        while True:
+            self.driver.execute_script('window.scrollTo(0, 5000)')
+            time.sleep(1)
+            post_container = self.find(*self.POST_CONTAINER)
+            posts = post_container.find_elements(*self.POST_ITEM)
+            result = [p for p in posts]
+            try:
+                next_page_li = self.find(By.ID, "next-page-btn")
+
+                if "disabled" in next_page_li.get_attribute("class"):
+                    return result
+
+                next_link = next_page_li.find_element(By.TAG_NAME, "a")
+                next_link.click()
+                time.sleep(1)
+            except NoSuchElementException:
+                return result

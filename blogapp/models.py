@@ -85,7 +85,19 @@ if __name__ == '__main__':
                  email="nhan@gmail.com", avatar=default_avt),
             User(name='Nguyễn Công', username='nguyencong',
                  password=hash_pass("123456"), user_role=UserRole.USER,
-                 email="nguyenvancong72033@gmail.com", avatar=default_avt)
+                 email="nguyenvancong72033@gmail.com", avatar=default_avt),
+            User(name='Messi', username='messi',
+                 password=hash_pass("123456"), user_role=UserRole.USER,
+                 email="nguyenvancong72033@gmail.com", avatar=default_avt),
+            User(name='Ronaldo', username='ronaldo',
+                 password=hash_pass("123456"), user_role=UserRole.USER,
+                 email="nguyenvancong72033@gmail.com", avatar=default_avt),
+            User(name='Neymar', username='neymar',
+                 password=hash_pass("123456"), user_role=UserRole.USER,
+                 email="nguyenvancong72033@gmail.com", avatar=default_avt),
+            User(name='Antony', username='antony',
+                 password=hash_pass("123456"), user_role=UserRole.USER,
+                 email="nguyenvancong72033@gmail.com", avatar=default_avt),
         ]
 
         db.session.add(admin_user)

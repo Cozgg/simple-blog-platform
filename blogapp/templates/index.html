@@ -48,7 +48,7 @@
                     <hr class="text-muted">
 
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small fw-medium">
+                        <span class="text-muted small fw-medium" id="author-post-{{post.id}}">
                             Tác giả: <a href="{{url_for('profile_by_id', user_id=post.user_id)}}" class="text-decoration-none">{{ post.author.name }}</a> &bull;
                             Bình luận: {{ post.comments|length }}
                         </span>

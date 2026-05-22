@@ -44,7 +44,7 @@ def test_tc1_create_post_success(driver):
 
     login_page = LoginPage(driver)
     login_page.open_page()
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
@@ -66,7 +66,7 @@ def test_tc1_create_post_success(driver):
 def test_tc2_create_post_fail_title_too_short(driver):
     login_page = LoginPage(driver)
     login_page.open_page()
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
@@ -86,7 +86,7 @@ def test_tc2_create_post_fail_title_too_short(driver):
 def test_tc3_create_post_fail_content_too_short(driver):
     login_page = LoginPage(driver)
     login_page.open_page()
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
@@ -108,7 +108,7 @@ def test_tc4_create_post_fail_both_invalid(driver):
     login_page = LoginPage(driver)
     login_page.open_page()
 
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
@@ -132,7 +132,7 @@ def test_tc5_create_post_empty_fields(driver):
     login_page = LoginPage(driver)
     login_page.open_page()
 
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
@@ -156,7 +156,7 @@ def test_tc6_duplicate_title_same_day(driver):
     login_page = LoginPage(driver)
     login_page.open_page()
 
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
@@ -217,7 +217,7 @@ def test_tc8_create_post_with_image(driver):
     login_page = LoginPage(driver)
     login_page.open_page()
 
-    login_page.login("ngocson", "123456")
+    login_page.login("messi", "123456")
 
     home_page = HomePage(driver)
     home_page.open_page()
