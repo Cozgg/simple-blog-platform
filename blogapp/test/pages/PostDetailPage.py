@@ -24,7 +24,6 @@ class PostDetailPage(BasePage):
     REPLY_TEXT = (By.CSS_SELECTOR, "#comment-list > div:nth-child(1) .reply-textarea")
     REPLY_SUBMIT_BTN = (By.CSS_SELECTOR, "#comment-list > div:nth-child(1) button[onclick*='submitReply']")
     CLOSE_BTN = (By.CLASS_NAME, "btn-close")
-    CONFIRM_DELETE_BTN = (By.ID, "btnConfirmYes")
     CANCEL_DELETE_BTN = (By.ID, "btnCancel")
     CONFIRM_MODAL = (By.ID, "globalConfirmModal")
     MODAL_CONFIRM_BTN = (By.ID, "btnConfirmYes")
@@ -89,7 +88,7 @@ class PostDetailPage(BasePage):
             WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(self.WARNING_MODAL)
             )
-            self.driver.find_element(*self.CONFIRM_DELETE_BTN).click()
+            self.driver.find_element(*self.MODAL_CONFIRM_BTN ).click()
             return True
         except TimeoutException:
             assert False, "Lỗi: Không hiển thị Modal xóa bình luận"
