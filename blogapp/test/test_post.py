@@ -67,6 +67,45 @@ def test_not_existing_post(sample_post):
     with pytest.raises(ValueError):
         dao.delete_post(post_id=999, current_user=u)
 
+@pytest.mark.parametrize(
+    "title, content, expected_exception",
+    [
+        (
+            "Ngắn", 
+            "Nội dung này dài lắm okeokeokeokeokeokeokeokeokeokeokeokeoke.", 
+            pytest.raises(ValueError, match='Tiêu đề phải từ 10 đến 200 ký tự')
+        ),  
+        
+        (
+            "A" * 201, 
+            "Nội dung này dài lắm okeokeokeokeokeokeokeokeokeokeokeokeoke.", 
+            pytest.raises(ValueError, match='Tiêu đề phải từ 10 đến 200 ký tự')
+        ), 
+        
+        (
+            "Tiêu đề này dài lắm oekoekokeokeokeokeokeoke", 
+            "Ngắn", 
+            pytest.raises(ValueError, match='Nội dung phải từ 50 đến 5000 ký tự')
+        ),  
+        
+        (
+            "Tiêu đề này dài lắm oekoekokeokeokeokeokeoke", 
+            "B" * 5001, 
+            pytest.raises(ValueError, match='Nội dung phải từ 50 đến 5000 ký tự')
+        ),  
+        
+        (
+            "", 
+            "", 
+            pytest.raises(ValueError, match='Tiêu đề phải từ 10 đến 200 ký tự')
+        ),  
+    ]
+)
+def test_add_post_invalid_length(test_session, setup_user, title, content, expected_exception):
+    user_id = setup_user.id
+    
+    with expected_exception:
+        dao.add_post(title, content, user_id)
 
 def test_post_limit(test_session, setup_user):
     user_id = setup_user.id
