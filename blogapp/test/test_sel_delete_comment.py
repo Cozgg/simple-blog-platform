@@ -268,7 +268,9 @@ class TestSelDeleteComment:
         post_detail.click_del_comment_button(cmt1.id)
         is_cancel_delete = post_detail.cancel_delete_modal()
         assert is_cancel_delete == True
-        assert total_comment == 2
+        time.sleep(1)
+        after_cancel_total_comment = post_detail.get_comment_count()
+        assert total_comment == after_cancel_total_comment
 
     def test_close_delete_button(self, driver, comment_factory):
         cmt1 = comment_factory(username="canhhuynh", content="test comment")
